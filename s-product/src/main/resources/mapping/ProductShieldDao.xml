@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ProductShieldDao">
+    <resultMap id="ProductShieldResultMap" type="com.handpay.ibenefit.product.entity.ProductShield">
+    	<result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+    	<result column="TYPE" property="type" jdbcType="DECIMAL" />
+    	<result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
+    </resultMap>
+
+	<select id="getShieldInfo" parameterType="PageSearch" resultType="java.util.Map">
+        select * from
+        (SELECT MAX (A.COMPANY_ID) AS COMPANY_ID,
+       MAX (B.COMPANY_NAME) AS COMPANY_NAME,
+       wm_concat (CASE
+                     WHEN A.TYPE = 1
+                     THEN
+                        (SELECT TYPE1.SUPPLIER_NAME
+                           FROM IBS_SUPPLIER TYPE1
+                          WHERE TYPE1.OBJECT_ID = A.ITEM_ID)
+                     ELSE
+                        NULL
+                  END)
+          AS SUPPLIER,
+          wm_concat (CASE
+                     WHEN A.TYPE = 1
+                     THEN
+                        (SELECT TYPE1.SUPPLIER_NO
+                           FROM IBS_SUPPLIER TYPE1
+                          WHERE TYPE1.OBJECT_ID = A.ITEM_ID)
+                     ELSE
+                        NULL
+                  END)
+          AS SUPPLIERNO,
+       wm_concat (CASE
+                     WHEN A.TYPE = 2
+                     THEN
+                        (SELECT TYPE2.CHINESE_NAME
+                           FROM IBS_PROD_BRAND TYPE2
+                          WHERE TYPE2.OBJECT_ID = A.ITEM_ID)
+                     ELSE
+                        NULL
+                  END)
+          AS BRAND,
+       wm_concat (CASE
+                     WHEN A.TYPE = 3
+                     THEN
+                        (SELECT TYPE3.NAME
+                           FROM IBS_PROD_CTGY TYPE3
+                          WHERE TYPE3.OBJECT_ID = A.ITEM_ID)
+                     ELSE
+                        NULL
+                  END)
+          AS CATAGORY,
+          wm_concat (CASE
+                     WHEN A.TYPE = 3
+                     THEN A.item_id  
+                     ELSE
+                        NULL
+                  END)
+          AS CATEGORYID,
+       wm_concat (
+          CASE
+             WHEN A.TYPE = 4
+             THEN
+                (SELECT NAME
+                   FROM F_DICTIONARY T
+                  WHERE     T.PARENT_ID = (SELECT OBJECT_ID
+                                             FROM F_DICTIONARY
+                                            WHERE DICTIONARY_ID = 1115)
+                        AND VALUE = A.ITEM_ID)
+             ELSE
+                NULL
+          END)
+          AS LIFESERVICE,
+       SUM (CASE
+               WHEN A.TYPE = 5
+               THEN
+                  (SELECT COUNT (1)
+                     FROM IBS_PROD TYPE5
+                    WHERE TYPE5.OBJECT_ID = A.ITEM_ID)
+               ELSE
+                  NULL
+            END)
+          AS PRODUCTCOUNT,
+          wm_concat (
+          CASE
+             WHEN A.TYPE = 5
+             THEN
+                (SELECT NAME
+                   FROM IBS_PROD P WHERE P.OBJECT_ID=A.ITEM_ID
+                  )
+             ELSE
+                NULL
+          END)
+          AS PRODUCTNAME,
+           wm_concat (
+          CASE
+             WHEN A.TYPE = 5
+             THEN
+                (SELECT PRODUCT_NO
+                   FROM IBS_PROD P WHERE P.OBJECT_ID=A.ITEM_ID
+                  )
+             ELSE
+                NULL
+          END)
+          AS PRODUCTNO,
+          wm_concat (
+          CASE
+             WHEN A.TYPE = 4
+             THEN
+                ( A.ITEM_ID)
+             ELSE
+                NULL
+          END)
+          AS LIFESERVICEID,
+          SUM (CASE
+               WHEN A.TYPE = 6
+               THEN
+                  (SELECT COUNT (1)
+                     FROM IBS_welfare_package TYPE6
+                    WHERE TYPE6.OBJECT_ID = A.ITEM_ID)
+               ELSE
+                  NULL
+            END)
+          AS PACKAGECOUNT
+      FROM IBS_PROD_SHIELD A
+       LEFT JOIN IBS_COMPANY B ON A.COMPANY_ID = B.OBJECT_ID
+		GROUP BY A.COMPANY_ID)
+		where 1=1
+		 <if test="paramMap.categoryId!=null">
+       and CATEGORYID like #{paramMap.categoryId}
+       </if>
+       <if test="paramMap.supplierNo!=null">
+       and SUPPLIERNO like #{paramMap.supplierNo}
+       </if>
+       <if test="paramMap.supplierName!=null">
+       and SUPPLIER like #{paramMap.supplierName}
+       </if>
+       <if test="paramMap.productName!=null">
+       and PRODUCTNAME like #{paramMap.productName}
+       </if>
+       <if test="paramMap.productNo!=null">
+       and PRODUCTNO like #{paramMap.productNo}
+       </if>
+       <if test="paramMap.chineseName!=null">
+       and BRAND like #{paramMap.chineseName}
+       </if>
+       <if test="paramMap.lifeServiceId!=null">
+       and LIFESERVICEID like #{paramMap.lifeServiceId}
+       </if>
+       <if test="paramMap.companyName!=null">
+       and COMPANY_NAME like #{paramMap.companyName}
+       </if>
+	</select>
+	
+	<select id="getShieldDetailInfo" resultType="java.util.Map">
+		SELECT MAX(A.COMPANY_ID) AS COMPANY_ID,
+		MAX(B.COMPANY_NAME) AS COMPANY_NAME,
+		wm_concat(CASE
+		WHEN A.TYPE = 1 THEN
+		(SELECT TYPE1.SUPPLIER_NAME
+		FROM IBS_SUPPLIER TYPE1
+		WHERE TYPE1.OBJECT_ID = A.ITEM_ID)
+		ELSE
+		NULL
+		END) AS SUPPLIER,
+		wm_concat(CASE
+		WHEN A.TYPE = 2 THEN
+		(SELECT TYPE2.CHINESE_NAME
+		FROM IBS_PROD_BRAND TYPE2
+		WHERE TYPE2.OBJECT_ID = A.ITEM_ID)
+		ELSE
+		NULL
+		END) AS BRAND,
+		wm_concat(CASE
+		WHEN A.TYPE = 3 THEN
+		(SELECT TYPE3.NAME
+		FROM IBS_PROD_CTGY TYPE3
+		WHERE TYPE3.OBJECT_ID = A.ITEM_ID)
+		ELSE
+		NULL
+		END) AS CATAGORY,
+		wm_concat(CASE
+		WHEN A.TYPE = 4 THEN
+		(SELECT NAME
+		FROM F_DICTIONARY T
+		WHERE T.PARENT_ID = (select OBJECT_ID
+		from F_DICTIONARY
+		WHERE DICTIONARY_ID = 1115)
+		AND VALUE = A.ITEM_ID)
+		ELSE
+		NULL
+		END) AS LIFESERVICE,
+		wm_concat(CASE
+		WHEN A.TYPE = 5 THEN
+		(SELECT TYPE5.NAME
+		FROM IBS_PROD_SKU TYPE5
+		WHERE TYPE5.OBJECT_ID = A.ITEM_ID)
+		ELSE
+		NULL
+		END) AS PRODUCT
+		FROM IBS_PROD_SHIELD A
+		LEFT JOIN IBS_COMPANY B
+		ON A.COMPANY_ID = B.OBJECT_ID
+		GROUP BY A.COMPANY_ID
+	</select>	
+	<select id="getAllCompanyId" resultType="Long">
+	    select distinct company_id from IBS_PROD_SHIELD
+	</select>
+</mapper>

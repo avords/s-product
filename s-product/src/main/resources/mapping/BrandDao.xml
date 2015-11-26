@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.BrandDao">
+  <resultMap id="brandResultMap" type="com.handpay.ibenefit.product.entity.Brand" >
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    <result column="BRAND_NO" property="brandNo" jdbcType="DECIMAL" />
+    <result column="LOGO" property="logo" jdbcType="VARCHAR" />
+    <result column="CHINESE_NAME" property="chineseName" jdbcType="VARCHAR" />
+    <result column="ENGLISH_NAME" property="englishName" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+  </resultMap>
+<select id="getBrandsByCount" parameterType="Long" resultMap="brandResultMap">
+ select distinct b.* from ibs_prod_brand b inner join ibs_prod_publish p on(b.object_id=p.brand_id)
+ where rownum &lt;=#{brandCount} and b.deleted=0 order by b.object_id desc
+</select>
+
+    <select id="getPublishBrands" resultMap="brandResultMap"
+        parameterType="PageSearch">
+select distinct * from(
+SELECT  b.*
+  FROM (
+        SELECT distinct t02.product_id product_id,
+               t02.type,
+               t02.check_status,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               ts.price sell_price,
+               t02.MARKET_PRICE,
+               t02.start_date
+          FROM  ibs_company_goods ts
+               inner join ibs_prod_sku_publish t02
+                  ON ts.goods_id = t02.object_id
+                  <if test="paramMap.companyId!=null">
+                   and ts.company_id=#{paramMap.companyId}
+                  </if>
+                  where ts.type=3 and t02.deleted=0
+          ) t left join ibs_prod_publish p
+          on(t.product_id=p.object_id)
+          inner join ibs_prod_brand b
+          on(p.brand_id=b.object_id)
+    WHERE 1 = 1
+        <if test="paramMap.count!=null">
+        and rownum &lt;= #{paramMap.count}
+        </if>
+        <if test="paramMap.priceZoneAfter!=null">
+            AND t.sell_price &gt;= #{paramMap.priceZoneAfter}
+        </if>
+        <if test="paramMap.priceZoneBefore!=null">
+            AND t.sell_price &lt;= #{paramMap.priceZoneBefore}
+        </if>
+        <if test="paramMap.areaId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_sell_area
+                         WHERE (area_code = #{paramMap.areaId} or area_code='-1') and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.brandId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_publish
+                         WHERE brand_id = #{paramMap.brandId} and object_id=t.product_id)
+        </if>
+        <if test="paramMap.welfareItemId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_welfare
+                         WHERE welfare_id = #{paramMap.welfareItemId} and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.welfareItemBigId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_welfare w
+                         WHERE status=1 and product_id=t.product_id and exists (select 1 from ibs_welfare_item i 
+                         where i.parent_item_id=#{paramMap.welfareItemBigId} 
+                         and i.status=1
+                         and i.item_grade=2
+                         and i.object_id=w.welfare_id
+                         ))
+        </if>
+        <if test="paramMap.categoryId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.object_id=#{paramMap.categoryId})
+        </if>
+        <if test="paramMap.firstId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.first_id=#{paramMap.firstId})
+        </if>
+        <if test="paramMap.secondId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.second_id=#{paramMap.secondId})
+        </if>
+        <if test="paramMap.searchProductIds!=null">
+            AND t.object_id IN (${paramMap.searchProductIds})
+        </if>
+        <if test="paramMap.staffGrade!=null">
+            <if test="paramMap.staffGrade=='all'">
+            AND P.STAFF_GRADE_ID is not null
+             </if>
+             <if test="paramMap.staffGrade!='all'">
+            AND P.STAFF_GRADE_ID =#{paramMap.staffGrade}
+             </if>
+        </if>
+        <if test="paramMap.leStaffGrade!=null">
+            AND P.STAFF_GRADE_ID &lt;=#{paramMap.leStaffGrade}
+        </if>
+        order by t.start_date desc
+        ) where 1=1
+        <if test="paramMap.brandCount!=null">
+          and rownum &lt;=#{paramMap.brandCount}
+        </if>
+    </select>
+    
+    <select id="getRecommendBrands" resultMap="brandResultMap"
+        parameterType="PageSearch">
+select distinct * from(
+   SELECT b.*
+  FROM (
+        SELECT distinct t01.product_id,
+               t02.type,
+               t02.check_status,
+               t01.LOCATION,
+               t01.sort_no,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               ts.price sell_price,
+               t02.MARKET_PRICE
+          FROM ibs_prod_recommend t01
+          inner join ibs_prod_sku_publish t02
+                  ON t01.product_id = t02.product_id
+               INNER JOIN ibs_company_goods ts
+               on t02.object_id=ts.goods_id 
+               <if test="paramMap.companyId!=null">
+                   and ts.company_id=#{paramMap.companyId}
+               </if>
+                  where t01.type=3 and ts.type=3 
+               AND T01.deleted=0 and t02.deleted=0
+        ) t left join ibs_prod_publish p
+          on(t.product_id=p.object_id)
+          inner join ibs_prod_brand b
+          on(p.brand_id=b.object_id)
+    WHERE 1 = 1
+        <if test="paramMap.count!=null">
+        and rownum &lt;= #{paramMap.count}
+        </if>
+        <if test="paramMap.priceZoneAfter!=null">
+            AND t.sell_price &gt;= #{paramMap.priceZoneAfter}
+        </if>
+        <if test="paramMap.priceZoneBefore!=null">
+            AND t.sell_price &lt;= #{paramMap.priceZoneBefore}
+        </if>
+        <if test="paramMap.areaId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_sell_area
+                         WHERE (area_code = #{paramMap.areaId} or area_code='-1') and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.brandId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_publish
+                         WHERE brand_id = #{paramMap.brandId} and object_id=t.product_id)
+        </if>
+        <if test="paramMap.welfareItemId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_welfare
+                         WHERE welfare_id = #{paramMap.welfareItemId} and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.positionCode!=null">
+           and t.location = #{paramMap.positionCode}
+        </if>
+        order by t.sort_no
+        ) where 1=1
+        <if test="paramMap.brandCount!=null">
+          and rownum &lt;=#{paramMap.brandCount}
+        </if>
+    </select>
+</mapper>

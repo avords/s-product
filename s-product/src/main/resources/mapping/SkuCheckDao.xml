@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.SkuCheckDao">
+  <resultMap id="skuCheckMap" type="com.handpay.ibenefit.product.entity.SkuCheck">
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    <result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+    <result column="SKU_ID" property="skuId" jdbcType="DECIMAL" />
+    <result column="CHECK_REASON" property="checkReason" jdbcType="VARCHAR" />
+    <result column="EXAMINE_USER_ID" jdbcType="DECIMAL" property="examineUserId" />
+    <result column="EXAMINE_DATE" jdbcType="TIMESTAMP" property="examineDate" />
+  </resultMap>
+
+    <select id="getLatelyCheckRecord" parameterType="Map" resultMap="skuCheckMap">
+      select * from (select * from IBS_PROD_SKU_CHECK where 1=1 
+     <if test="productId != null">
+          and product_id = #{productId}
+     </if>
+     <if test="skuId != null">
+          and sku_id = #{skuId}
+     </if>
+      order by examine_date desc) t where rownum=1
+    </select>
+</mapper>

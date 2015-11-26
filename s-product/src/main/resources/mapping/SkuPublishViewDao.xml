@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.SkuPublishViewDao">
+
+  <resultMap id="SkuPublishViewMap" type="com.handpay.ibenefit.product.entity.SkuPublishView" >
+    <result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+    <result column="SKU_ID" property="skuId" jdbcType="DECIMAL" />
+    <result column="PRICE" property="price" jdbcType="DECIMAL" />
+  </resultMap>
+	
+	<select id="getCompanyExclusiveSku" parameterType="Long">
+		SELECT DISTINCT a.sku_id
+ 		 FROM IBS_PROD_COMP_EXCL a,
+	</select>
+	
+	<select id="getPublishedSkuBySupplierId" parameterType="Long" resultMap="SkuPublishViewMap">
+		select * from V_IBS_SKU_PUBLISH a,IBS_PROD_PUBLISH b
+		where A.PRODUCT_ID = B.OBJECT_ID and B.SUPPLIER_ID = #{supplierId}
+	</select>
+	
+	<select id="getInSellingSku" resultMap="SkuPublishViewMap">
+		select a.* from V_IBS_SKU_PUBLISH a,IBS_PROD_PUBLISH b,ibs_supplier c
+        where A.PRODUCT_ID = B.OBJECT_ID and B.SUPPLIER_ID = c.object_id and C.IS_IN_SELLING = 1
+	</select>
+</mapper>

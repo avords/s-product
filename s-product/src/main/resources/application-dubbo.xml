@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+	<dubbo:application name="ibenefit-service-product" />
+    <!-- zookeeper注册中心 -->
+    <dubbo:registry protocol="${dubbo.registry.protocol}"
+        address="${dubbo.registry.address}" file="${user.home}/.dubbo-cache/s-product-3${env.num}05" group="dubbo-${env_path}" />
+
+    <!-- 用dubbo协议在端口暴露服务 -->
+    <dubbo:protocol name="dubbo" threadpool="cached" port="3${env.num}05" />
+
+    <dubbo:provider timeout="${dubbo.consumer.timeout}" />
+    <dubbo:annotation package="com.handpay.ibenefit" />
+    <dubbo:consumer check="false"></dubbo:consumer>
+
+	<dubbo:reference id="cacheManager" interface="com.handpay.ibenefit.framework.cache.ICacheManager" version="1.0"/>
+	
+</beans>

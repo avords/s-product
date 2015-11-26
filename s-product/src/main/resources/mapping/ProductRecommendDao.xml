@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ProductRecommendDao">
+
+	<resultMap id="ProductRecommendResultMap"
+		type="com.handpay.ibenefit.category.entity.ProductRecommend">
+		<id column="OBJECT_ID" property="objectId"/>
+		<result column="PLATFORM" property="platform"/>
+		<result column="PLATFORM_NAME" property="platformName"/>
+		<result column="PAGE" property="page"/>
+		<result column="PAGE_NAME" property="pageName"/>
+		<result column="LOCATION" property="location"/>
+		<result column="LOCATION_NAME" property="locationName" />
+		<result column="PRODUCT_ID" property="productId"/>
+		<result column="NAME" property="productName" />
+		<result column="SORT_NO" property="sortNo"/>
+		<result column="SELL_PRICE" property="sellPrice"/>
+		<result column="START_DATE" property="startDate"/>
+		<result column="END_DATE" property="endDate"/>
+		<result column="USER_NAME" property="userName"/>
+		<result column="CREATED_ON" property="createdOn" />
+		<result column="SUPPLIER_ID" property="supplierId" />
+		<result column="SUPPLIER_NAME" property="supplierName" />
+		<result column="DAYDOWN" property="dayDown" />
+		<result column="TITLE" property="title" jdbcType="VARCHAR" />
+        <result column="SUB_TITLE" property="subTitle" jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<update id="updateSortNoByObjectId" parameterType="Map">
+		UPDATE
+		IBS_PROD_RECOMMEND SET sort_No = #{sortNo} WHERE OBJECT_ID =
+		#{objectId}
+	</update>
+
+	<select id="findList" resultMap="ProductRecommendResultMap"
+		parameterType="PageSearch">
+		select * from(
+		SELECT T01.OBJECT_ID, T01.PLATFORM, T02.PLATFORM_NAME, T01.PAGE,T02.PAGE_NAME, T01.LOCATION,
+       T02.POSITION_NAME AS LOCATION_NAME, T01.PRODUCT_ID,
+       (CASE
+           WHEN T01.TYPE = 3
+              THEN T03.NAME
+           WHEN T01.TYPE = 1
+              THEN T06.PACKAGE_NAME
+           ELSE NULL
+        END
+       ) NAME,
+       T01.SORT_NO,
+       (CASE
+           WHEN T01.TYPE = 3
+              THEN T03.SELL_PRICE
+           WHEN T01.TYPE = 2
+              THEN T06.PACKAGE_PRICE
+           WHEN T01.TYPE = 1
+              THEN (SELECT TO_NUMBER (NAME)
+                      FROM F_DICTIONARY F
+                     WHERE F.PARENT_ID = (SELECT OBJECT_ID
+                                            FROM F_DICTIONARY
+                                           WHERE DICTIONARY_ID = 1603)
+                       AND F.VALUE =
+                                   (SELECT PACKAGE_BUDGET
+                                      FROM IBS_WP_CATEGORY F02
+                                     WHERE F02.OBJECT_ID = T06.WP_CATEGORY_ID))
+           ELSE NULL
+        END
+       ) SELL_PRICE,
+       (CASE
+           WHEN T01.TYPE = 3
+              THEN T03.END_DATE
+           WHEN T01.TYPE = 1
+              THEN T06.END_DATE
+           ELSE NULL
+        END
+       ) END_DATE,
+       T04.USER_NAME, T01.CREATED_ON, T03.SUPPLIER_ID, T05.SUPPLIER_NAME,
+       (FLOOR (TO_NUMBER (  (CASE
+                                        WHEN T01.TYPE = 3
+                                           THEN T03.END_DATE
+                                        WHEN T01.TYPE = 1
+                                           THEN T06.END_DATE
+                                        ELSE NULL
+                                     END
+                                    )
+                                  - SYSDATE 
+                                 )
+                      )
+       ) DAYDOWN,
+       T01.TYPE
+  FROM IBS_PROD_RECOMMEND T01 LEFT JOIN IBS_ADVERT_POSITION T02
+       ON T01.LOCATION = T02.POSITION_CODE AND T01.PAGE = T02.PAGE_CODE
+       LEFT JOIN IBS_PROD_PUBLISH T03 ON T01.PRODUCT_ID = T03.OBJECT_ID
+       LEFT JOIN F_USER T04 ON T04.OBJECT_ID = T01.CREATED_BY
+       LEFT JOIN IBS_SUPPLIER T05 ON T05.OBJECT_ID = T03.SUPPLIER_ID
+       LEFT JOIN IBS_WELFARE_PACKAGE T06 ON T06.OBJECT_ID = T01.PRODUCT_ID
+		<if test="paramMap.type!=null">
+			LEFT JOIN IBS_PROD_TYPES T08 ON T08.PRODUCT_ID = T01.PRODUCT_ID
+		</if>
+			WHERE 1 = 1 
+		<if test="paramMap.type!=null">
+			AND T08.TYPE = #{paramMap.type}
+		</if>
+		<if test="paramMap.platform!=null">
+			AND T01.PLATFORM = #{paramMap.platform}
+		</if>
+		<if test="paramMap.page!=null">
+			AND T01.PAGE = #{paramMap.page}
+		</if>
+		<if test="paramMap.location!=null">
+			AND T01.LOCATION LIKE #{paramMap.location}
+		</if>
+		<if test="paramMap.supplierId!=null">
+			AND T03.SUPPLIER_ID = #{paramMap.supplierId}
+		</if>
+		<if test="paramMap.supplierName!=null">
+			AND T05.SUPPLIER_NAME LIKE #{paramMap.supplierName}
+		</if>
+		<if test="paramMap.productId!=null">
+			AND T01.PRODUCT_ID LIKE #{paramMap.productId}
+		</if>
+		<if test="paramMap.productName!=null">
+			AND (CASE
+           WHEN t01.TYPE = 3
+              THEN t03.NAME
+           WHEN t01.TYPE = 1
+              THEN t06.package_name
+           ELSE NULL
+        END
+       ) LIKE #{paramMap.productName}
+		</if>
+		<if test="paramMap.startDateAfter!=null">
+			AND (CASE
+           WHEN t01.TYPE = 3
+              THEN t03.end_date
+           WHEN t01.TYPE = 1
+              THEN t06.end_date
+           ELSE NULL
+        END
+       ) &gt;= #{paramMap.startDateAfter}
+		</if>
+		<if test="paramMap.startDateBefore!=null">
+			AND (CASE
+           WHEN t01.TYPE = 3
+              THEN t03.end_date
+           WHEN t01.TYPE = 1
+              THEN t06.end_date
+           ELSE NULL
+        END
+       ) &lt;= #{paramMap.startDateBefore}
+		</if>  
+		)
+		<if test="paramMap.orderBy!=null">
+                order by ${paramMap.orderBy}
+        </if>
+		 
+	</select>
+	
+	<select id="getBasicInfoByPositionCode" parameterType="String" resultMap="ProductRecommendResultMap">
+	 select * from ibs_prod_recommend t where t.location=#{positionCode} and rownum=1
+	</select>
+</mapper>

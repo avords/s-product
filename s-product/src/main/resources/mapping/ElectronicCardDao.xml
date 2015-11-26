@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ElectronicCardDao">
+    <resultMap id="cardResult" type="com.handpay.ibenefit.product.entity.ElectronicCard" >
+        <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+	    <result column="CARD_NO" property="cardNo" jdbcType="VARCHAR" />
+	    <result column="CARD_PASSWORD" property="cardPassword" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+	    <result column="IMPORT_DATE" property="importDate" jdbcType="TIMESTAMP" />
+	    <result column="SKU_ID" property="skuId" jdbcType="DECIMAL" />
+    </resultMap>
+    <select id="getCountByParam" resultType="Long" parameterType="Map">
+      select count(*) from ibs_prod_card_stock where 1=1
+      <if test="status!=null">
+       and status = #{status}
+      </if>
+      <if test="skuId!=null">
+       and sku_id = #{skuId}
+      </if>
+      <if test="cardNo!=null">
+       and card_no = #{cardNo}
+      </if>
+    </select>
+    
+    
+    <select id="getCardByCount" resultMap="cardResult" parameterType="Map">
+      select * from ibs_prod_card_stock where 1=1
+      <if test="status!=null">
+       and status = #{status}
+      </if>
+       <if test="productId!=null">
+       and sku_id = #{productId}
+      </if>
+      <if test="count!=null">
+       and rownum &lt;=#{count}
+     </if>
+    </select>
+    
+    
+    <!-- 子订单关联卡密信息 -->
+    <select id="selectSubOrderCardInfo" resultMap="cardResult" parameterType="Map">
+		SELECT PCS.* 
+		FROM IBS_PROD_CARD_STOCK PCS
+		INNER JOIN IBS_CARD_CTE_SUBORDER CTE
+			ON PCS.OBJECT_ID = CTE.CARD_CREATE_ID
+		<where>
+			1=1
+			<if test="subOrderId != null">
+				AND CTE.SUB_ORDER_ID = ${subOrderId}
+			</if>
+			<if test="subOrderId == null">
+				AND 1=2
+			</if>
+			<if test="type != null">
+				AND CTE.TYPE=${type}
+			</if>
+		</where>
+    </select>
+    
+    
+    
+    
+    
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.category.dao.ProductMallCategoryDao">
+    <resultMap id="ProductMallCategoryResultMap" type="com.handpay.ibenefit.category.entity.ProductMallCategory">
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    	<result column="FIRST_ID" property="firstId" jdbcType="DECIMAL" />
+    	<result column="SECOND_ID" property="secondId" jdbcType="DECIMAL" />
+    	<result column="THIRD_ID" property="thirdId" jdbcType="DECIMAL" />
+    	<result column="NAME" property="name" jdbcType="VARCHAR" />
+    	<result column="SORT_NO" property="sortNo" jdbcType="DOUBLE" />
+    	<result column="PLATFORM" property="platform" jdbcType="DECIMAL" />    	
+    	<result column="STATUS" property="status" jdbcType="DECIMAL" />
+    	<result column="LAYER" property="layer" jdbcType="DECIMAL" />
+        <result column="CHILDREN_COUNT" property="childrenCount" jdbcType="DECIMAL" />
+        <result column="NAME1" property="firstName" jdbcType="VARCHAR" />
+        <result column="NAME2" property="secondName" jdbcType="VARCHAR" />
+    </resultMap>
+    <update id="updateSecondCategoryCount">
+        update IBS_PROD_MALL_CTGY t set children_count = ( 
+        	select count(1) from IBS_PROD_MALL_CTGY where first_id = t.first_id 
+        		and layer = '2') where layer = '1'
+    </update>
+    <update id="updateThirdCategoryCount">
+        update IBS_PROD_MALL_CTGY t set children_count = ( 
+        	select count(1) from IBS_PROD_MALL_CTGY where second_id = t.second_id 
+        		and layer = '3') where layer = '2'
+    </update>
+    <select id="getAllThirdCategoryByProductThirdId" parameterType="Map"  resultMap="ProductMallCategoryResultMap">
+        select distinct t.*,t1.name as NAME1,t2.name as NAME2 from(select distinct tm.* from IBS_PROD_CTGY tc,IBS_PROD_CTGY_MAP cm,IBS_PROD_MALL_CTGY tm 
+        where tc.layer='3' and tm.layer='3' 
+        <if test="productThirdId != null">
+              and tc.object_id = #{productThirdId}
+        </if>
+        <if test="platform != null">
+              and tm.platform = #{platform}
+        </if>
+        and tc.object_id=cm.product_category_id and cm.mall_category_id=tm.object_id) t,IBS_PROD_MALL_CTGY t2,IBS_PROD_MALL_CTGY t1
+        where t1.layer='1' and t2.layer='2' and t.layer='3' and t.first_id=t1.first_id and t.second_id=t2.second_id
+    </select>
+    
+    
+    <update id="updateStatus" parameterType="com.handpay.ibenefit.category.entity.ProductMallCategory">
+        update IBS_PROD_MALL_CTGY t set status = #{status} where object_id = #{objectId} 
+    </update>
+    
+    <update id="updateSortNo" parameterType="com.handpay.ibenefit.category.entity.ProductMallCategory">
+        update IBS_PROD_MALL_CTGY t set SORT_NO = #{sortNo}  where object_id = #{objectId}
+    </update>
+    <select id="getAllFirstCategory"  resultMap="ProductMallCategoryResultMap">
+        select * from(
+        select * from IBS_PROD_MALL_CTGY t where t.layer='1' and t.status=1
+        <if test="platform!=null">
+        and t.platform = #{platform}
+        </if>
+        ORDER BY t.sort_no asc) where 1=1
+        <if test="count!=null">
+        and rownum&lt;=#{count}
+        </if>
+    </select>
+    <select id="getSecondCategoryByParam"   parameterType="java.util.Map"  resultMap="ProductMallCategoryResultMap">
+        select * from IBS_PROD_MALL_CTGY t where t.layer='2' and 1=1 and t.status=1
+        <if test="firstId!=null">
+            and  t.first_id= #{firstId}
+        </if>
+        <if test="platform!=null">
+        and t.platform = #{platform}
+        </if>
+        ORDER BY t.sort_no asc
+    </select>
+    <select id="getThirdCategoryByParam"   parameterType="java.util.Map"  resultMap="ProductMallCategoryResultMap">
+        select t.* from
+        (select t.*,t1.name name1,t2.name name2,rownum ro from IBS_PROD_MALL_CTGY t
+        join IBS_PROD_MALL_CTGY t1 on(t.first_id=t1.first_id)
+        join IBS_PROD_MALL_CTGY t2 on(t.second_id=t2.second_id)
+         where t.layer='3' and t.status=1
+         and t1.layer='1' and t2.layer='2'
+        <if test="secondId!=null">
+            and  t.second_id= #{secondId}
+        </if>
+        <if test="categoryId!=null">
+            and  t.object_id= #{categoryId}
+        </if>
+        <if test="platform!=null">
+        and t.platform = #{platform}
+        </if>
+        ORDER BY t.sort_no asc) t where 1=1
+        <if test="count!=null">
+        and t.ro &lt;= #{count}
+        </if>
+    </select>
+    <select id="getThirdCategoryByParamWeixin"   parameterType="java.util.Map"  resultMap="ProductMallCategoryResultMap">
+        select t.* from
+        (select t.*,t1.name name1,t2.name name2,rownum ro from IBS_PROD_MALL_CTGY t
+        join IBS_PROD_MALL_CTGY t1 on(t.first_id=t1.first_id)
+        join IBS_PROD_MALL_CTGY t2 on(t.second_id=t2.second_id)
+         where t.layer='3' and t.status=1
+         and t1.layer='1' and t2.layer='2'
+          and  t.second_id in (select t.second_id from IBS_PROD_MALL_CTGY t  where t.layer='2'  and t.status=1  and  t.first_id=#{firstId}  and t.platform =#{platform})
+        <if test="categoryId!=null">
+            and  t.object_id= #{categoryId}
+        </if>
+        ORDER BY t.sort_no asc) t where 1=1
+        <if test="count!=null">
+        and t.ro &lt;= #{count}
+        </if>
+    </select>
+    <select id="getRelatedProductMallCategoryByCategoryId" parameterType="Long" resultType="Long">
+    	select count(object_Id) from IBS_PROD_MALL_CTGY tm,IBS_PROD_CTGY_MAP cm
+    	where tm.object_id = cm.mall_Category_Id and tm.layer = '3' and tm.status = 1 and cm.product_category_id = #{productCategoryId}
+    </select>
+</mapper>

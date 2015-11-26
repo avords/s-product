@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.CartDao">
+    <resultMap id="cartResult" type="com.handpay.ibenefit.product.entity.Cart" >
+	    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+	    <result column="USER_ID" property="userId" jdbcType="DECIMAL" />
+	    <result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+	    <result column="PRODUCT_COUNT" property="productCount" jdbcType="DECIMAL" />
+	    <result column="ADD_DATE" property="addDate" jdbcType="TIMESTAMP" />
+    </resultMap>
+    
+    <update id="updateCountByParam" parameterType="Map">
+     update ibs_prod_cart set product_count=#{count} where
+     <if test="objectId!=null">
+     object_id=#{objectId}
+     </if>
+    </update>
+    <select id="queryCountByUserId" parameterType="Map" resultType="Long">
+      select nvl(sum(t.product_count),0) from ibs_prod_cart t where t.user_id=#{userId} 
+      and exists(
+        select 1 from (select * from ibs_prod_sku_publish t01 inner join (SELECT i.product_id
+        FROM ibs_company_goods s, ibs_prod_sku_publish i
+        WHERE s.TYPE = 3 AND i.object_id = s.goods_id AND s.company_id = #{companyId}) t02 on(t01.product_id=t02.product_id)) s
+        where s.object_id=t.product_id
+       )
+    </select>
+    
+    <select id="getCarts" parameterType="PageSearch" resultMap="cartResult">
+       select t.* from ibs_prod_cart t where t.user_id=#{paramMap.userId} 
+       and exists(
+        select 1 from (select * from ibs_prod_sku_publish t01 inner join (SELECT i.product_id
+        FROM ibs_company_goods s, ibs_prod_sku_publish i
+        WHERE s.TYPE = 3 AND i.object_id = s.goods_id AND s.company_id = #{paramMap.companyId}) t02 on(t01.product_id=t02.product_id)) s
+        where s.object_id=t.product_id
+       ) order by t.add_date desc
+    </select>
+</mapper>

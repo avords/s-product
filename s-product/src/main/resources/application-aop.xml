@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                     http://www.springframework.org/schema/beans/spring-beans.xsd
+                     http://www.springframework.org/schema/tx
+                     http://www.springframework.org/schema/tx/spring-tx.xsd
+                     http://www.springframework.org/schema/aop
+                     http://www.springframework.org/schema/aop/spring-aop.xsd
+                     http://www.springframework.org/schema/context
+                     http://www.springframework.org/schema/context/spring-context-2.5.xsd 
+                     http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<bean id="methodCacheInterceptor" class="com.handpay.ibenefit.framework.aop.MethodCacheInterceptor">
+		<property name="cacheManager" ref="cacheManager"></property>
+	</bean>
+	
+	<bean id="objectUpdateInterceptor" class="com.handpay.ibenefit.framework.aop.ObjectUpdateInterceptor">
+		<property name="cacheManager" ref="cacheManager"></property>
+	</bean>
+
+	<!-- proxy-target-class:true（cglib.jar）,false or ignore(JDK)-->
+	<aop:config proxy-target-class="false">
+		<!-- 声明式事务支持  -->
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.*.service.impl.*Manager*+.*(..))" advice-ref="txAdvice" order="1" />
+		<!-- 缓存  -->
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.SkuPublishManager+.getByObjectId(..))" advice-ref="methodCacheInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.ProductPublishManager+.getByObjectId(..))" advice-ref="methodCacheInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.BrandManager+.getByObjectId(..))" advice-ref="methodCacheInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.AttributeManager+.getByObjectId(..))" advice-ref="methodCacheInterceptor" order="1" />
+		
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.SkuPublishManager+.save(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.SkuPublishManager+.delete(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.SkuPublishManager+.update(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.ProductPublishManager+.save(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.ProductPublishManager+.delete(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.ProductPublishManager+.update(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.BrandManager+.save(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.BrandManager+.delete(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.BrandManager+.update(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.AttributeManager+.save(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.AttributeManager+.delete(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		<aop:advisor pointcut="execution(* com.handpay.ibenefit.product.service.impl.AttributeManager+.update(..))" advice-ref="objectUpdateInterceptor" order="1" />
+		
+	</aop:config>
+
+</beans>

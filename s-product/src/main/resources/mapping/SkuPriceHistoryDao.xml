@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.SkuPriceHistoryDao">
+  <resultMap id="skuPriceMap" type="com.handpay.ibenefit.product.entity.SkuPriceHistory" >
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    <result column="SKU_ID" property="skuId" jdbcType="DECIMAL" />
+    <result column="SUPPLY_PRICE1" property="supplyPrice" jdbcType="DECIMAL" />
+    <result column="MARKET_PRICE1" property="marketPrice" jdbcType="DECIMAL" />
+    <result column="SELL_PRICE1" property="sellPrice" jdbcType="DECIMAL" />
+    <result column="UPDATE_USER_ID" property="updateUserId" jdbcType="DECIMAL" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <association property="sku" column="sku_id" javaType="com.handpay.ibenefit.product.entity.Sku">  
+        <id column="sku_id" property="objectId" jdbcType="DECIMAL" />
+	    <result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+	    <result column="SKU_NO" property="skuNo" jdbcType="VARCHAR" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="PRODUCT_NO" property="productNo" jdbcType="VARCHAR" />
+	    <result column="PRODUCT_MODEL" property="productModel" jdbcType="VARCHAR" />
+	    <result column="SUPPLY_PRICE" property="supplyPrice" jdbcType="DOUBLE" />
+	    <result column="MARKET_PRICE" property="marketPrice" jdbcType="DOUBLE" />
+	    <result column="SELL_PRICE" property="sellPrice" jdbcType="DOUBLE" />
+	    <result column="SAFETY_STOCK" property="safetyStock" jdbcType="DECIMAL" />
+	    <result column="STOCK" property="stock" jdbcType="DECIMAL" />
+	    <result column="ATTRIBUTE_ID1" property="attributeId1" jdbcType="DECIMAL" />
+	    <result column="ATTRIBUTE_ID2" property="attributeId2" jdbcType="DECIMAL" />
+	    <result column="ATTRIBUTE_VALUE1" property="attributeValue1" jdbcType="VARCHAR" />
+	    <result column="ATTRIBUTE_VALUE2" property="attributeValue2" jdbcType="VARCHAR" />
+	    <result column="IF_INVOICE" property="ifInvoice" jdbcType="DECIMAL" />
+	    <result column="CHECK_STATUS" property="checkStatus" jdbcType="DECIMAL" />
+	    <result column="TYPE" property="type" jdbcType="DECIMAL" />
+	    <result column="DELETED" property="deleted" jdbcType="DECIMAL" />
+	    <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL" />
+	    <result column="CREATED_ON" property="createdOn" jdbcType="TIMESTAMP" />
+	    <result column="UPDATED_BY" property="updatedBy" jdbcType="DECIMAL" />
+	    <result column="UPDATED_ON" property="updatedOn" jdbcType="TIMESTAMP" />
+	    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+	    <result column="category_id" property="categoryId" jdbcType="DECIMAL" />
+	    <result column="RETURN_GOODS" property="returnGoods" jdbcType="DECIMAL" />
+	    <result column="IMMEDIATE_RELEASE" property="immediateRelease" jdbcType="DECIMAL" />
+        <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+        <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+   </association> 
+  </resultMap>
+  <select id="findSkuPriceHistory" parameterType="PageSearch" resultMap="skuPriceMap">
+         select * from 
+            (select distinct n.OBJECT_ID,n.SUPPLY_PRICE SUPPLY_PRICE1,n.MARKET_PRICE MARKET_PRICE1,n.SELL_PRICE SELL_PRICE1,n.UPDATE_USER_ID,n.UPDATE_DATE,f.user_name user_name,m.* 
+             from IBS_PROD_SKU_PRI_HISTO n inner join (select distinct t1.object_id object_id1,t1.PRODUCT_ID, t1.SKU_NO, 
+      t1.NAME, t1.PRODUCT_NO, t1.PRODUCT_MODEL, 
+      t1.SUPPLY_PRICE, t1.MARKET_PRICE, t1.SELL_PRICE, 
+      t1.SAFETY_STOCK, t1.STOCK, t1.ATTRIBUTE_ID1, 
+      t1.ATTRIBUTE_ID2, t1.ATTRIBUTE_VALUE1, t1.ATTRIBUTE_VALUE2, 
+      t1.IF_INVOICE, t1.CHECK_STATUS, t1.TYPE, 
+      t1.DELETED, t1.CREATED_BY, t1.CREATED_ON, 
+      t1.UPDATED_BY, t1.UPDATED_ON, t1.RETURN_GOODS,t1.IMMEDIATE_RELEASE,t1.START_DATE,t1.END_DATE,t2.category_id,t2.release_type,t3.supplier_name 
+             from IBS_PROD_SKU t1
+             left join IBS_PROD t2 on(t2.object_id=t1.product_id)
+             left join IBS_SUPPLIER t3 on (t2.supplier_id=t3.object_id)
+             left join IBS_PROD_CTGY t6 on (t2.category_id=t6.object_id)
+             where 1=1 and t1.deleted=0
+            <if test="paramMap.firstId != null">
+                and t6.first_id = #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and t6.second_id = #{paramMap.secondId}
+            </if>
+            <if test="paramMap.categoryId != null">
+                and t6.object_id = #{paramMap.categoryId}
+            </if>
+            <if test="paramMap.supplierNo != null">
+                and t3.supplier_no LIKE #{paramMap.supplierNo}
+            </if>
+            <if test="paramMap.supplierName != null">
+                and t3.supplier_name LIKE #{paramMap.supplierName}
+            </if>
+            <if test="paramMap.type != null">
+                and t1.type = #{paramMap.type}
+            </if>
+            <if test="paramMap.releaseType != null">
+                and t2.release_type = #{paramMap.releaseType}
+            </if>
+            <if test="paramMap.name != null">
+                and t1.name LIKE #{paramMap.name}
+            </if>
+            <if test="paramMap.checkStatus != null">
+                and t1.check_status = #{paramMap.checkStatus}
+            </if>
+            <if test="paramMap.skuNo != null">
+                and t1.sku_no LIKE #{paramMap.skuNo}
+            </if>
+           <if test="paramMap.publishDate1 != null">
+                and t1.created_on >= #{paramMap.publishDate1}
+            </if>
+            <if test="paramMap.publishDate2 != null">
+                and  #{paramMap.publishDate2}>=t1.created_on
+            </if>
+            <if test="paramMap.warning != null">
+                and t1.safety_stock > t1.stock
+            </if>
+            ) m on(n.sku_id=m.object_id1) left join F_USER f on(n.UPDATE_USER_ID=f.object_id) where 1=1
+            <if test="paramMap.startPrice != null">
+                and n.sell_price >= #{paramMap.startPrice}
+            </if>
+            <if test="paramMap.endPrice != null">
+                and #{paramMap.endPrice} >= n.sell_price
+            </if>
+            order by n.update_date desc,n.object_id desc)
+            <if test="paramMap.orderBy!=null">
+               order by ${paramMap.orderBy}
+            </if>
+    </select>
+</mapper>

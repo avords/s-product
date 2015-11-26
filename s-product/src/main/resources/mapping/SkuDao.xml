@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.SkuDao">
+	<resultMap id="skuMap" type="com.handpay.ibenefit.product.entity.Sku">
+		<id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+		<result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+		<result column="SKU_NO" property="skuNo" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="PRODUCT_NO" property="productNo" jdbcType="VARCHAR" />
+		<result column="PRODUCT_MODEL" property="productModel" jdbcType="VARCHAR" />
+		<result column="SUPPLY_PRICE" property="supplyPrice" jdbcType="DOUBLE" />
+		<result column="MARKET_PRICE" property="marketPrice" jdbcType="DOUBLE" />
+		<result column="SELL_PRICE" property="sellPrice" jdbcType="DOUBLE" />
+		<result column="SAFETY_STOCK" property="safetyStock" jdbcType="DECIMAL" />
+		<result column="STOCK" property="stock" jdbcType="DECIMAL" />
+		<result column="ATTRIBUTE_ID1" property="attributeId1" jdbcType="DECIMAL" />
+		<result column="ATTRIBUTE_ID2" property="attributeId2" jdbcType="DECIMAL" />
+		<result column="ATTRIBUTE_VALUE1" property="attributeValue1" jdbcType="VARCHAR" />
+		<result column="ATTRIBUTE_VALUE2" property="attributeValue2" jdbcType="VARCHAR" />
+		<result column="IF_INVOICE" property="ifInvoice" jdbcType="DECIMAL" />
+		<result column="CHECK_STATUS" property="checkStatus" jdbcType="DECIMAL" />
+		<result column="TYPE" property="type" jdbcType="DECIMAL" />
+		<result column="DELETED" property="deleted" jdbcType="DECIMAL" />
+		<result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL" />
+		<result column="CREATED_ON" property="createdOn" jdbcType="TIMESTAMP" />
+		<result column="UPDATED_BY" property="updatedBy" jdbcType="DECIMAL" />
+		<result column="UPDATED_ON" property="updatedOn" jdbcType="TIMESTAMP" />
+		<result column="MAIN_PICTURE" property="mainPicture" jdbcType="VARCHAR" />
+		<result column="supplier_name" property="supplierName"
+			jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName"
+			jdbcType="VARCHAR" />
+		<result column="category_id" property="categoryId" jdbcType="DECIMAL" />
+		<result column="RETURN_GOODS" property="returnGoods" jdbcType="DECIMAL" />
+		<result column="IMMEDIATE_RELEASE" property="immediateRelease"
+			jdbcType="DECIMAL" />
+		<result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+		<result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+		<result column="auditor_name" property="auditorName" jdbcType="VARCHAR" />
+		<result column="auditor_date" property="auditorDate" jdbcType="TIMESTAMP" />
+		<result column="stock_source" property="stockSource" jdbcType="DECIMAL" />
+		<association property="product" column="product_id"
+			javaType="com.handpay.ibenefit.product.entity.Product">
+			<id column="product_id" property="objectId" />
+			<result column="brand_id" property="brandId" />
+			<result column="release_type" property="releaseType" />
+		</association>
+	</resultMap>
+	
+	 <resultMap id="attributeValue" type="com.handpay.ibenefit.product.entity.AttributeValue">
+        <id column="object_id" jdbcType="BIGINT" property="objectId" />
+        <result column="attribute_id" jdbcType="BIGINT" property="attributeId"/>
+        <result column="attribute_value" jdbcType="VARCHAR" property="attributeValue"/>
+        <result column="sort_no" jdbcType="DOUBLE" property="sortNo" />
+        <result column="alias" jdbcType="VARCHAR" property="alias" />
+    </resultMap>
+    
+    
+    
+    
+    <resultMap id="querySkuList_resultMap" type="com.handpay.ibenefit.product.entity.Sku">
+        <result column="NAME" property="name"/>
+        <result column="MAIN_PICTURE" property="mainPicture"/>
+        <result column="SKUNAME" property="skuName" />
+        <result column="MARKETPRICE" property="marketPrice" />
+        
+        <result column="PRODUCTID" property="productId" />
+        <result column="PACKAGEEXPLAIN" property="packageExplain" />
+        <result column="PACKAGENAME" property="packageName" />
+        <result column="SKUID" property="skuId" />
+    </resultMap>
+    
+    
+    
+
+    <select id="findSkuDirect" parameterType="PageSearch" resultMap="skuMap">
+    select * from
+         (select distinct t1.*,t2.category_id,t2.brand_id,t2.release_type,t3.supplier_name
+            <if test="paramMap.searchAuditor!=null">
+             ,t9.examine_date auditor_date,t10.user_name auditor_name
+           </if>
+            from (select distinct t1.*,t5.user_name as update_user_name
+	         from IBS_PROD_SKU t1
+	         left join F_USER t5 on(t1.updated_by=t5.object_id)) t1
+	         left join IBS_PROD t2 on(t2.object_id=t1.product_id)
+	         left join IBS_SUPPLIER t3 on (t2.supplier_id=t3.object_id)
+	         left join IBS_PROD_CTGY t6 on (t2.category_id=t6.object_id)
+	         <if test="paramMap.auditorId!=null">
+	         left join IBS_PROD_CATE_PM t8 on (t2.category_id=t8.category_id)
+	         </if>
+	         <if test="paramMap.searchAuditor!=null">
+             left join (select * from IBS_PROD_SKU_CHECK where (examine_date,sku_id) in(select  max(examine_date),sku_id from IBS_PROD_SKU_CHECK  group by sku_id)) t9 on (t1.object_id=t9.sku_id)
+             left join F_USER t10 on (t9.examine_user_id=t10.object_id)
+             </if>
+	         where 1=1 and t1.deleted=0
+	         <if test="paramMap.auditorId!=null">
+                and t8.auditor_id=#{paramMap.auditorId}
+             </if>
+            <if test="paramMap.firstId != null">
+                and t6.first_id = #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and t6.second_id = #{paramMap.secondId}
+            </if>
+            <if test="paramMap.categoryId != null">
+                and t6.object_id = #{paramMap.categoryId}
+            </if>
+            <if test="paramMap.supplierNo != null">
+                and t3.supplier_no LIKE #{paramMap.supplierNo}
+            </if>
+            <if test="paramMap.supplierName != null">
+                and t3.supplier_name LIKE #{paramMap.supplierName}
+            </if>
+            <if test="paramMap.type != null">
+                and t1.type = #{paramMap.type}
+            </if>
+            <if test="paramMap.releaseType != null">
+                and t2.release_type = #{paramMap.releaseType}
+            </if>
+            <if test="paramMap.brandId != null">
+                and t2.brand_id = #{paramMap.brandId}
+            </if>
+            <if test="paramMap.supplierId != null">
+                and t2.supplier_id = #{paramMap.supplierId}
+            </if>
+            <if test="paramMap.name != null">
+                and t1.name LIKE #{paramMap.name}
+            </if>
+            <if test="paramMap.checkStatus != null">
+                and t1.check_status = #{paramMap.checkStatus}
+            </if>
+            <if test="paramMap.skuNo != null">
+                and t1.sku_no LIKE #{paramMap.skuNo}
+            </if>
+            <if test="paramMap.publishDate1 != null">
+                and t1.created_on >= #{paramMap.publishDate1}
+            </if>
+            <if test="paramMap.publishDate2 != null">
+                and  #{paramMap.publishDate2}>=t1.created_on
+            </if>
+            <if test="paramMap.warning != null">
+                and t1.safety_stock > t1.stock
+            </if>
+            <if test="paramMap.platform!=null and paramMap.platform==1">
+                and (t2.release_type=1 or (t2.release_type=2 and t1.check_status!=1))
+             </if>
+            order by t1.updated_on desc nulls last,t1.object_id desc nulls last) 
+            <if test="paramMap.orderBy!=null">
+			    order by ${paramMap.orderBy}
+			</if>
+    </select>
+    
+        <select id="findSkuByGroup" parameterType="PageSearch" resultMap="skuMap">
+        select * from
+         (select distinct o.*,m.category_id,m.release_type,m.brand_id,m.supplier_name
+              <if test="paramMap.searchAuditor!=null">
+                ,m.auditor_date,m.auditor_name
+             </if>
+          from (select distinct t1.*,t2.category_id,t2.brand_id,t2.release_type,t3.supplier_name 
+             <if test="paramMap.searchAuditor!=null">
+               ,t9.examine_date auditor_date,t10.user_name auditor_name
+             </if>
+             from (select distinct t1.*,t5.user_name as update_user_name
+             from IBS_PROD_SKU t1
+             left join F_USER t5 on(t1.updated_by=t5.object_id)) t1
+             left join IBS_PROD t2 on(t2.object_id=t1.product_id)
+             left join IBS_SUPPLIER t3 on (t2.supplier_id=t3.object_id)
+             left join IBS_PROD_CTGY t6 on (t2.category_id=t6.object_id)
+             <if test="paramMap.auditorId!=null">
+             left join IBS_PROD_CATE_PM t8 on (t2.category_id=t8.category_id)
+             </if>
+             <if test="paramMap.searchAuditor!=null">
+             left join (select * from IBS_PROD_SKU_CHECK where (examine_date,sku_id) in(select  max(examine_date),sku_id from IBS_PROD_SKU_CHECK  group by sku_id)) t9 on (t1.object_id=t9.sku_id)
+             left join F_USER t10 on (t9.examine_user_id=t10.object_id)
+             </if>
+             where 1=1 and t1.deleted=0
+             <if test="paramMap.auditorId!=null">
+                and t8.auditor_id=#{paramMap.auditorId}
+             </if>
+            <if test="paramMap.firstId != null">
+                and t6.first_id = #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and t6.second_id = #{paramMap.secondId}
+            </if>
+            <if test="paramMap.categoryId != null">
+                and t6.object_id = #{paramMap.categoryId}
+            </if>
+            <if test="paramMap.supplierNo != null">
+                and t3.supplier_no LIKE #{paramMap.supplierNo}
+            </if>
+            <if test="paramMap.supplierName != null">
+                and t3.supplier_name LIKE #{paramMap.supplierName}
+            </if>
+            <if test="paramMap.type != null">
+                and t1.type = #{paramMap.type}
+            </if>
+            <if test="paramMap.releaseType != null">
+                and t2.release_type = #{paramMap.releaseType}
+            </if>
+            <if test="paramMap.brandId != null">
+                and t2.brand_id = #{paramMap.brandId}
+            </if>
+            <if test="paramMap.supplierId != null">
+                and t2.supplier_id = #{paramMap.supplierId}
+            </if>
+            <if test="paramMap.name != null">
+                and t1.name LIKE #{paramMap.name}
+            </if>
+            <if test="paramMap.checkStatus != null">
+                and t1.check_status = #{paramMap.checkStatus}
+            </if>
+            <if test="paramMap.skuNo != null">
+                and t1.sku_no LIKE #{paramMap.skuNo}
+            </if>
+            <if test="paramMap.publishDate1 != null">
+                and t1.created_on >= #{paramMap.publishDate1}
+            </if>
+            <if test="paramMap.publishDate2 != null">
+                and  #{paramMap.publishDate2}>=t1.created_on
+            </if>
+            <if test="paramMap.warning != null">
+                and t1.safety_stock > t1.stock
+            </if>
+            <if test="paramMap.platform!=null and paramMap.platform==1">
+               and (t2.release_type=1 or (t2.release_type=2 and t1.check_status!=1))
+            </if>
+            ) m left join IBS_PROD n on(m.product_id=n.object_id) left join IBS_PROD_SKU o on(m.product_id=o.product_id)
+            order by o.updated_on desc nulls last,o.object_id desc nulls last)
+            <if test="paramMap.orderBy!=null">
+                order by ${paramMap.orderBy}
+            </if>
+    </select>
+    
+    <update id="modifySku" parameterType="Map">
+	     update ibs_prod_sku set 
+	     <if test="returnGoods != null">
+	       return_goods=#{returnGoods} 
+	     </if>
+	     <if test="addStock != null">
+           stock=stock+#{addStock} 
+         </if>
+         <if test="stockSource != null">
+           stock=#{stock},stock_source=#{stockSource}
+         </if>
+	     where 1=1
+	     <if test="productId != null">
+	     and product_id=#{productId}
+	     </if>
+	     <if test="objectId != null">
+	     and object_id=#{objectId}
+	     </if>
+  </update>
+  
+  <insert id="upSku" parameterType="Map">
+    insert into IBS_PROD_SKU_PUBLISH(OBJECT_ID, PRODUCT_ID, SKU_NO, 
+      NAME, PRODUCT_NO, PRODUCT_MODEL, 
+      SUPPLY_PRICE, MARKET_PRICE, SELL_PRICE, 
+      SAFETY_STOCK, STOCK, ATTRIBUTE_ID1, 
+      ATTRIBUTE_ID2, ATTRIBUTE_VALUE1, ATTRIBUTE_VALUE2, 
+      IF_INVOICE, CHECK_STATUS, TYPE, 
+      DELETED, CREATED_BY, CREATED_ON, 
+      UPDATED_BY, UPDATED_ON, RETURN_GOODS,IMMEDIATE_RELEASE,START_DATE,END_DATE,STOCK_SOURCE) 
+    select OBJECT_ID, PRODUCT_ID, SKU_NO, 
+      NAME, PRODUCT_NO, PRODUCT_MODEL, 
+      SUPPLY_PRICE, MARKET_PRICE, SELL_PRICE, 
+      SAFETY_STOCK, STOCK, ATTRIBUTE_ID1, 
+      ATTRIBUTE_ID2, ATTRIBUTE_VALUE1, ATTRIBUTE_VALUE2, 
+      IF_INVOICE, CHECK_STATUS, TYPE, 
+      DELETED, CREATED_BY, CREATED_ON, 
+      UPDATED_BY, sysdate, RETURN_GOODS,IMMEDIATE_RELEASE,START_DATE,END_DATE,STOCK_SOURCE FROM IBS_PROD_SKU where 
+      <if test="productId != null">
+      product_id=#{productId}
+      </if>
+      <if test="skuId != null">
+      object_id=#{skuId}
+      </if>
+  </insert>
+  
+  <update id="updateSkuCheckStatus" parameterType="Map">
+         update ibs_prod_sku set check_status=#{checkStatus} where 1=1
+         <if test="objectId != null">
+         and object_id=#{objectId}
+         </if>
+         <if test="productId != null">
+         and product_id=#{productId}
+         </if>
+  </update>
+  
+  	<select id="querySkuList" parameterType="Map" resultMap="querySkuList_resultMap">
+		SELECT
+			SP.NAME AS NAME,
+			SP.MAIN_PICTURE AS MAIN_PICTURE,
+			SKU.NAME AS SKUNAME,
+			SKU.MARKET_PRICE AS MARKETPRICE,
+			SKU.PRODUCT_ID AS PRODUCTID,
+			WP.PACKAGE_EXPLAIN AS PACKAGEEXPLAIN,
+			WP.PACKAGE_NAME AS PACKAGENAME,
+			SKU.OBJECT_ID AS SKUID
+			
+			
+		FROM IBS_WELFARE_PACKAGE WP
+		LEFT JOIN IBS_WP_RELATION WR
+			ON WP.OBJECT_ID = WR.PACKAGE_ID
+		LEFT JOIN IBS_PROD SP
+			ON WR.PRODUCT_ID = SP.OBJECT_ID
+		LEFT JOIN IBS_PROD_SKU SKU
+			ON SP.OBJECT_ID = SKU.PRODUCT_ID
+		WHERE
+			WP.DELETED = 0 
+	      AND SP.DELETED = 0 
+	      AND SKU.DELETED = 0
+		<if test="objectId != null">
+			AND WP.OBJECT_ID =#{objectId}
+		</if>
+		<if test="skuId != null">
+			AND SKU.OBJECT_ID =#{skuId}
+		</if>
+
+	</select>
+
+  <select id="getAllAttribute1" parameterType="Long" resultMap="attributeValue">
+    SELECT distinct p.*,t.attribute_value1 alias
+    FROM ibs_prod_sku t left join ibs_prod_attr_val p on(t.attribute_id1=p.object_id)
+    where t.product_id=#{productId} order by p.sort_no asc
+</select>
+<select id="getAllAttribute2" parameterType="Long" resultMap="attributeValue">
+    SELECT distinct p.*,t.attribute_value2 alias
+    FROM ibs_prod_sku t left join ibs_prod_attr_val p on(t.attribute_id2=p.object_id)
+    where t.product_id=#{productId} order by p.sort_no asc
+</select>
+<select id="getRecommendProductSku" resultType="com.handpay.ibenefit.product.entity.SkuHomeView"
+		parameterType="Map">
+/* Formatted on 2015/6/10 14:34:36 (QP5 v5.252.13127.32847) */
+SELECT t.product_id productid,
+       t.sort_no AS sortno,
+       SUBSTR (t.NAME, 0, 8) AS NAME,
+       t.sku_no AS skuno,
+       T.OBJECT_ID AS skuId,
+       t.sell_price AS sellprice,
+       t.MARKET_PRICE AS marketPrice,
+       (SELECT main_picture
+          FROM ibs_prod_publish
+         WHERE object_id = t.product_id)
+          AS mainpicture
+  FROM (
+  /* 都不聚合的情况 */
+  SELECT t01.product_id,
+               t01.sort_no,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               t02.sell_price,
+               t02.MARKET_PRICE
+          FROM ibs_prod_recommend t01
+               LEFT JOIN ibs_prod_sku_publish t02
+                  ON t01.product_id = t02.product_id
+                LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+                        WHERE t03.is_together = 0 and t04.is_together = 0
+          /* 都聚合的情况 */
+        UNION
+          SELECT t01.product_id,
+                 MIN (t01.sort_no),
+                 MAX (t02.NAME),
+                 MIN (t02.sku_no),
+                 MIN (t02.OBJECT_ID),
+                 MIN (t02.sell_price),
+                 MIN (t02.MARKET_PRICE)
+            FROM ibs_prod_recommend t01
+                 LEFT JOIN ibs_prod_sku_publish t02
+                    ON t01.product_id = t02.product_id
+                 LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+           WHERE t03.is_together = 1 and t04.is_together = 1
+        GROUP BY t01.product_id
+        /* 属性1聚合，属性2不聚合 */
+        UNION
+          SELECT t01.product_id,
+                 MIN (t01.sort_no),
+                 MAX (t02.NAME),
+                 MIN (t02.sku_no),
+                 MIN (t02.OBJECT_ID),
+                 MIN (t02.sell_price),
+                 MIN (t02.MARKET_PRICE)
+            FROM ibs_prod_recommend t01
+                 LEFT JOIN ibs_prod_sku_publish t02
+                    ON t01.product_id = t02.product_id
+                 LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+           WHERE t03.is_together = 1 and t04.is_together = 0
+        GROUP BY t01.product_id,t02.attribute_id2
+        /* 属性1不聚合，属性2聚合 */
+        UNION
+          SELECT t01.product_id,
+                 MIN (t01.sort_no),
+                 MAX (t02.NAME),
+                 MIN (t02.sku_no),
+                 MIN (t02.OBJECT_ID),
+                 MIN (t02.sell_price),
+                 MIN (t02.MARKET_PRICE)
+            FROM ibs_prod_recommend t01
+                 LEFT JOIN ibs_prod_sku_publish t02
+                    ON t01.product_id = t02.product_id
+                 LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+           WHERE t03.is_together = 0 and t04.is_together = 1
+        GROUP BY t01.product_id,t02.attribute_id1
+        ) t
+ WHERE 1 = 1
+		<if test="count!=null">
+		and rownum &lt;= #{count}
+		</if>
+		<if test="priceZoneAfter!=null">
+			AND t.sell_price &gt;= #{priceZoneAfter}
+		</if>
+		<if test="priceZoneBefore!=null">
+			AND t.sell_price &lt;= #{priceZoneBefore}
+		</if>
+		<if test="areaId!=null">
+			AND t.product_id IN (SELECT product_id
+                          FROM ibs_prod_sell_area
+                         WHERE area_code = #{areaId} or area_code='-1') 
+		</if>
+	</select>
+	
+	<select id="getRecommendProductSkuPagination" resultType="com.handpay.ibenefit.product.entity.SkuHomeView"
+		parameterType="PageSearch">
+ 
+SELECT t.product_id productid,
+       t.sort_no AS sortno,
+       SUBSTR (t.NAME, 0, 8) AS NAME,
+       t.sku_no AS skuno,
+       T.OBJECT_ID AS skuId,
+       t.sell_price AS sellprice,
+       t.MARKET_PRICE AS marketPrice,
+       (SELECT main_picture
+          FROM ibs_prod_publish
+         WHERE object_id = t.product_id)
+          AS mainpicture
+  FROM (
+  /* 都不聚合的情况 */
+  SELECT t01.product_id,
+               t01.sort_no,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               t02.sell_price,
+               t02.MARKET_PRICE
+          FROM ibs_prod_recommend t01
+               LEFT JOIN ibs_prod_sku_publish t02
+                  ON t01.product_id = t02.product_id
+                LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+                        WHERE t03.is_together = 0 and t04.is_together = 0
+          /* 都聚合的情况 */
+        UNION
+          SELECT t01.product_id,
+                 MIN (t01.sort_no),
+                 MAX (t02.NAME),
+                 MIN (t02.sku_no),
+                 MIN (t02.OBJECT_ID),
+                 MIN (t02.sell_price),
+                 MIN (t02.MARKET_PRICE)
+            FROM ibs_prod_recommend t01
+                 LEFT JOIN ibs_prod_sku_publish t02
+                    ON t01.product_id = t02.product_id
+                 LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+           WHERE t03.is_together = 1 and t04.is_together = 1
+        GROUP BY t01.product_id
+        /* 属性1聚合，属性2不聚合 */
+        UNION
+          SELECT t01.product_id,
+                 MIN (t01.sort_no),
+                 MAX (t02.NAME),
+                 MIN (t02.sku_no),
+                 MIN (t02.OBJECT_ID),
+                 MIN (t02.sell_price),
+                 MIN (t02.MARKET_PRICE)
+            FROM ibs_prod_recommend t01
+                 LEFT JOIN ibs_prod_sku_publish t02
+                    ON t01.product_id = t02.product_id
+                 LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+           WHERE t03.is_together = 1 and t04.is_together = 0
+        GROUP BY t01.product_id,t02.attribute_id2
+        /* 属性1不聚合，属性2聚合 */
+        UNION
+          SELECT t01.product_id,
+                 MIN (t01.sort_no),
+                 MAX (t02.NAME),
+                 MIN (t02.sku_no),
+                 MIN (t02.OBJECT_ID),
+                 MIN (t02.sell_price),
+                 MIN (t02.MARKET_PRICE)
+            FROM ibs_prod_recommend t01
+                 LEFT JOIN ibs_prod_sku_publish t02
+                    ON t01.product_id = t02.product_id
+                 LEFT JOIN ibs_prod_show t03
+                    ON     t03.product_id = t01.product_id
+                       AND t03.status = 1
+                       AND t03.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id1)
+                 LEFT JOIN ibs_prod_show t04
+                    ON     t04.product_id = t01.product_id
+                       AND t04.status = 1
+                       AND t04.attribute_id in (select t00.attribute_id from ibs_prod_attr_val t00 where t00.object_id=t02.attribute_id2)
+           WHERE t03.is_together = 0 and t04.is_together = 1
+        GROUP BY t01.product_id,t02.attribute_id1
+        ) t
+ WHERE 1 = 1
+		  
+		<if test="paramMap.priceZoneAfter!=null">
+			AND t.sell_price &gt;= #{paramMap.priceZoneAfter}
+		</if>
+		<if test="paramMap.priceZoneBefore!=null">
+			AND t.sell_price &lt;= #{paramMap.priceZoneBefore}
+		</if>
+		<if test="paramMap.areaId!=null">
+			AND t.product_id IN (SELECT product_id
+                          FROM ibs_prod_sell_area
+                         WHERE area_code = #{paramMap.areaId} or area_code='-1') 
+		</if>
+	</select>
+	
+	
+	<select id="searchSkuStatus" parameterType="Map" resultType="Long">
+    SELECT count(*) from ibs_prod_sku where 1=1
+    <if test="produtId!=null">
+    product_id=#{productId}
+    </if>
+    <if test="checkStatus1!=null and checkStatus2!=null">
+    and check_status in(#{checkStatus1},#{checkStatus2})
+    </if>
+    </select>
+	
+	<select id="getStock" parameterType="Map" resultType="Long">
+        select nvl(sum(t.stock),0) from ibs_prod_sku_publish t where 1=1
+        <if test="productId != null">
+           and  t.product_id=#{productId}
+        </if>
+        <if test="attributeId1 != null">
+           and  t.attribute_id1=#{attributeId1}
+        </if>
+        <if test="attributeId2 != null">
+           and  t.attribute_id2=#{attributeId2}
+        </if>
+  </select>
+  
+  <select id="getNeedUpShelves" resultType="Long" parameterType="Map">
+      select t01.object_id from
+        (select t.object_id,rownum rn from ibs_prod_sku t where sysdate>t.start_date 
+        and t.start_date is not null
+        and (sysdate&lt;end_date or end_date is null)
+        and t.check_status=4) t01
+        where t01.rn>#{pageSize}*(#{currentPage}-1)
+        and t01.rn&lt;=#{pageSize}*#{currentPage}
+  </select>
+  
+  <select id="getNeedDownShelves" resultType="Long" parameterType="Map">
+      select t01.object_id from
+        (select p.object_id,rownum rn from ibs_prod_sku_publish p 
+        inner join ibs_prod_publish t on(p.product_id=t.object_id) 
+        where t.end_date is not null
+        and sysdate>t.end_date 
+        and p.check_status=5) t01
+        where t01.rn>#{pageSize}*(#{currentPage}-1)
+        and t01.rn&lt;=#{pageSize}*#{currentPage}
+  </select>
+</mapper>

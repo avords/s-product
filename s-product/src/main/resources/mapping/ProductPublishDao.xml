@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ProductPublishDao">
+   <resultMap id="productPublish" type="com.handpay.ibenefit.product.entity.ProductPublish" >
+        <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+        <result column="SUPPLIER_ID" property="supplierId" jdbcType="DECIMAL" />
+        <result column="BRAND_ID" property="brandId" jdbcType="DECIMAL" />
+        <result column="CATEGORY_ID" property="categoryId" jdbcType="DECIMAL" />
+        <result column="NAME" property="name" jdbcType="VARCHAR" />
+        <result column="KEYWORDS" property="keywords" jdbcType="VARCHAR" />
+        <result column="PRODUCT_NO" property="productNo" jdbcType="VARCHAR" />
+        <result column="PRODUCT_MODEL" property="productModel" jdbcType="VARCHAR" />
+        <result column="DISTRIBUTION_WAY" property="distributionWay" jdbcType="DECIMAL" />
+        <result column="SUPPLY_PRICE" property="supplyPrice" jdbcType="DECIMAL" />
+        <result column="MARKET_PRICE" property="marketPrice" jdbcType="DECIMAL" />
+        <result column="SELL_PRICE" property="sellPrice" jdbcType="DECIMAL" />
+        <result column="SAFETY_STOCK" property="safetyStock" jdbcType="DECIMAL" />
+        <result column="IF_INVOICE" property="ifInvoice" jdbcType="DECIMAL" />
+        <result column="PACKINGLIST" property="packinglist" jdbcType="VARCHAR" />
+        <result column="WEIGHT" property="weight" jdbcType="DECIMAL" />
+        <result column="LENGTH" property="length" jdbcType="DECIMAL" />
+        <result column="WIDTH" property="width" jdbcType="DECIMAL" />
+        <result column="HEIGHT" property="height" jdbcType="DECIMAL" />
+        <result column="MAIN_PICTURE" property="mainPicture" jdbcType="VARCHAR" />
+        <result column="IMMEDIATE_RELEASE" property="immediateRelease" jdbcType="DECIMAL" />
+        <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+        <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+<!--         <result column="STATUS" property="status" jdbcType="DECIMAL" /> -->
+        <result column="APPLY_USER_ID" property="applyUserId" jdbcType="DECIMAL" />
+        <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP" />
+        <result column="RELEASE_TYPE" property="releaseType" jdbcType="DECIMAL" />
+        <result column="MODIFIER_ID" property="modifierId" jdbcType="DECIMAL" />
+        <result column="MODIFY_DATE" property="modifyDate" jdbcType="TIMESTAMP" />
+        <result column="RETURN_GOODS" property="returnGoods" jdbcType="DECIMAL" />
+        <result column="TYPE" property="type" jdbcType="DECIMAL" />
+        <result column="IS_WELFARE_PLAN" property="isWelfarePlan" jdbcType="DECIMAL" />
+  </resultMap> 
+   	<select id="getAllProductId" resultType="Long">
+		select object_id from IBS_PROD_PUBLISH
+	</select>
+	<select id="findNoInSellingPublishProduct" parameterType="PageSearch" resultMap="productPublish">
+        select p.* from ibs_prod_publish p left join ibs_supplier s on(p.supplier_id=s.object_id) 
+        where s.is_in_selling!=1
+       <if test="paramMap.name != null">
+		  AND p.NAME LIKE #{paramMap.name}
+	   </if>
+       <if test="paramMap.productModel != null">
+		  AND p.PRODUCT_MODEL LIKE #{paramMap.productModel}
+	   </if>
+    </select>
+    <select id="getWelfarePlanProduct" parameterType="PageSearch" resultMap="productPublish">
+        select distinct p.object_id,p.updated_on,p.category_id,p.name,p.supply_price,p.market_price,p.sell_price,t7.type,w.is_welfare_plan from ibs_prod_publish p 
+        inner join ibs_prod_welfare w on(p.object_id=w.product_id and w.status=1)
+        left join IBS_PROD_CTGY t6 on (p.category_id=t6.object_id) 
+        left join IBS_PROD_TYPES t7 on (p.object_id=t7.product_id) 
+        where 1=1
+       <if test="paramMap.welfareId != null">
+          AND w.welfare_id = #{paramMap.welfareId}
+       </if>
+       <if test="paramMap.firstId != null">
+           and t6.first_id = #{paramMap.firstId}
+       </if>
+       <if test="paramMap.secondId != null">
+           and t6.second_id = #{paramMap.secondId}
+       </if>
+       <if test="paramMap.categoryId != null">
+           and t6.object_id = #{paramMap.categoryId}
+       </if>
+       <if test="paramMap.type != null">
+           and t7.type = #{paramMap.type}
+       </if>
+       <if test="paramMap.name != null">
+           and p.name LIKE #{paramMap.name}
+       </if>
+       <if test="paramMap.isWelfarePlan != null">
+           and w.is_welfare_plan = #{paramMap.isWelfarePlan}
+       </if>
+       order by p.updated_on desc nulls last,p.object_id desc nulls last
+    </select>
+    
+    <select id="getPublishProduct" parameterType="PageSearch" resultMap="productPublish">
+   SELECT DISTINCT t1.OBJECT_ID,
+                t1.SUPPLIER_ID,
+                t1.BRAND_ID,
+                t1.CATEGORY_ID,
+                t1.NAME,
+                t1.KEYWORDS,
+                t1.PRODUCT_NO,
+                t1.PRODUCT_MODEL,
+                t1.DISTRIBUTION_WAY,
+                t1.SUPPLY_PRICE,
+                t1.MARKET_PRICE,
+                t1.SELL_PRICE,
+                t1.SAFETY_STOCK,
+                t1.IF_INVOICE,
+                t1.PACKINGLIST,
+                t1.WEIGHT,
+                t1.LENGTH,
+                t1.WIDTH,
+                t1.HEIGHT,
+                t1.MAIN_PICTURE,
+                t1.CREATED_BY,
+                t1.CREATED_ON,
+                t1.RELEASE_TYPE,
+                t1.UPDATED_BY,
+                t1.UPDATED_ON,
+                t1.DELETED,
+                t1.START_DATE,
+                t1.END_DATE,
+                t1.IMMEDIATE_RELEASE,
+                t1.STAFF_GRADE_ID
+  FROM ibs_company_goods ts
+       INNER JOIN ibs_prod_sku_publish sk ON (ts.goods_id = sk.object_id
+           <if test="paramMap.companyId!=null">
+               and ts.company_id=#{paramMap.companyId}
+           </if>
+       )
+       INNER JOIN ibs_prod_publish t1 ON (sk.product_id = t1.object_id)
+       LEFT JOIN ibs_prod_welfare t2 ON (t1.object_id = t2.product_id and t2.status=1)
+ WHERE ts.TYPE = 3 AND sk.deleted = 0
+       <if test="paramMap.categoryId != null">
+           and t1.category_id = #{paramMap.categoryId}
+       </if>
+       <if test="paramMap.name != null">
+           and t1.name LIKE #{paramMap.name}
+       </if>
+       <if test="paramMap.welfareId != null">
+          AND t2.welfare_id = #{paramMap.welfareId}
+       </if>
+       <if test="paramMap.isWelfarePlan != null">
+           and t2.is_welfare_plan = #{paramMap.isWelfarePlan}
+       </if>
+       order by t1.updated_on desc nulls last,t1.object_id desc nulls last
+    </select>
+    
+    <update id="uploadEnclosure" parameterType="Map">
+      update ibs_prod t set t.enclosure=#{enclosure},t.enclosure_name=#{enclosureName} where t.object_id=#{productId}
+    </update>
+    
+     <select id="getUserInsureProduct" parameterType="Map" resultMap="productPublish">
+    	SELECT DISTINCT T01.OBJECT_ID AS SUPPLIER_ID,T.BRAND_ID, T.CATEGORY_ID, T.CREATED_BY, T.CREATED_ON, T.DELETED,T.DISTRIBUTION_WAY, T.ENCLOSURE, T.ENCLOSURE_NAME, T.END_DATE, T.HEIGHT, T.IF_INVOICE, T.IMMEDIATE_RELEASE, T.KEYWORDS, T.LENGTH, T.MAIN_PICTURE, T.MARKET_PRICE, T.NAME, T.OBJECT_ID, T.PACKINGLIST, T.PRODUCT_MODEL, T.PRODUCT_NO, T.RELEASE_TYPE, T.SAFETY_STOCK, T.SELL_PRICE, T.STAFF_GRADE_ID, T.START_DATE, T.SUPPLIER_ID, T.SUPPLY_PRICE, T.UPDATED_BY, T.UPDATED_ON, T.WEIGHT, T.WIDTH FROM IBS_PROD_PUBLISH T 
+			LEFT JOIN IBS_INSURE_ORDER T01 ON T01.PRODUCT_ID = T.OBJECT_ID
+			LEFT JOIN IBS_INSURE_ORDER_USER T02 ON T02.INSURE_ORDER_ID = T01.OBJECT_ID
+			WHERE T02.OBJECT_ID > 0 AND T02.USER_ID = #{userId} AND TO_CHAR(T02.EFFECTIVE_DATE,'YYYY') = #{currentYear}
+    </select>
+</mapper>

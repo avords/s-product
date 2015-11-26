@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.category.dao.ProductCategoryMappingDao">
+    <resultMap id="productCategoryMapping" type="com.handpay.ibenefit.category.entity.ProductCategoryMapping">
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    	<result column="MALL_CATEGORY_ID" property="mallCategoryId" jdbcType="DECIMAL" />
+    	<result column="PRODUCT_CATEGORY_ID" property="productCategoryId" jdbcType="DECIMAL" />
+    </resultMap>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.CompanyGoodsDao">
+
+	<update id="updateCompanySkuPrice" parameterType="Map">
+		UPDATE IBS_COMPANY_GOODS c
+		   SET c.price =
+		          (SELECT min(price)
+		             FROM V_IBS_PROD_COMPANY_PRICE b
+		            WHERE     b.price IS NOT NULL
+		                  AND c.COMPANY_ID = b.company_id
+		                  AND c.GOODS_ID = b.sku_id)
+		 WHERE     c.TYPE = 3
+		       AND EXISTS
+		              (SELECT 1
+		                 FROM V_IBS_PROD_COMPANY_PRICE b
+		                WHERE c.COMPANY_ID = b.company_id AND c.GOODS_ID = b.sku_id)
+		       AND C.COMPANY_ID IN (${companyIds})
+	</update>
+	
+	<update id="updateAllCompanySkuPrice">
+		UPDATE IBS_COMPANY_GOODS c
+		   SET c.price =
+		          (SELECT min(price)
+		             FROM V_IBS_PROD_COMPANY_PRICE b
+		            WHERE     b.price IS NOT NULL
+		                  AND c.COMPANY_ID = b.company_id
+		                  AND c.GOODS_ID = b.sku_id)
+		 WHERE     c.TYPE = 3
+		       AND EXISTS
+		              (SELECT 1
+		                 FROM V_IBS_PROD_COMPANY_PRICE b
+		                WHERE c.COMPANY_ID = b.company_id AND c.GOODS_ID = b.sku_id)
+	</update>
+	
+	<delete id="deleteCompanyGoodsByProductId" parameterType="Long">
+		delete from IBS_COMPANY_GOODS c where C.GOODS_ID in(
+		    select a.object_id from ibs_prod_sku_publish a where A.PRODUCT_ID = #{productId}
+		) and type = 3
+	</delete>
+	
+	
+	<update id="updateCompanyPackagePrice" parameterType="Map">
+		UPDATE IBS_COMPANY_GOODS c
+		   SET c.price =
+		          (SELECT min(PRICE)
+		             FROM V_IBS_WELFARE_COMPANY_PRICE b
+		            WHERE     b.PRICE IS NOT NULL
+		                  AND c.COMPANY_ID = b.company_id
+		                  AND c.GOODS_ID = b.PACKAGE_ID)
+		 WHERE     c.TYPE = 1
+		       AND EXISTS
+		              (SELECT 1
+		                 FROM V_IBS_WELFARE_COMPANY_PRICE b
+		                WHERE c.COMPANY_ID = b.company_id AND c.GOODS_ID = b.PACKAGE_ID)
+		 <if test="companyIds!=null">
+		       AND C.COMPANY_ID IN (${companyIds})
+		 </if>
+	</update>
+	
+
+</mapper>

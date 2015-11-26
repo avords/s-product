@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.category.dao.ProductCategoryDao">
+    <resultMap id="ProductCategoryResultMap" type="com.handpay.ibenefit.category.entity.ProductCategory">
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+        <result column="FIRST_ID" property="firstId" jdbcType="VARCHAR" />
+        <result column="SECOND_ID" property="secondId" jdbcType="VARCHAR" />
+        <result column="THIRD_ID" property="thirdId" jdbcType="VARCHAR" />
+        <result column="NAME" property="name" jdbcType="VARCHAR" />
+        <result column="SORT_NO" property="sortNo" jdbcType="DOUBLE" />
+        <result column="STATUS" property="status" jdbcType="DECIMAL" />
+        <result column="LAYER" property="layer" jdbcType="DECIMAL" />
+        <result column="CHILDREN_COUNT" property="childrenCount" jdbcType="DECIMAL" />
+        <result column="NAME1" property="firstName" jdbcType="VARCHAR" />
+        <result column="NAME2" property="secondName" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <update id="updateSecondCategoryCount">
+        update IBS_PROD_CTGY t set children_count = ( 
+        	select count(1) from IBS_PROD_CTGY where first_id = t.first_id 
+        		and layer = '2') where layer = '1'
+    </update>
+    <update id="updateThirdCategoryCount">
+        update IBS_PROD_CTGY t set children_count = ( 
+        	select count(1) from IBS_PROD_CTGY where second_id = t.second_id 
+        		and layer = '3') where layer = '2'
+    </update>
+    <select id="getAllFirstCategory"  resultMap="ProductCategoryResultMap">
+        select * from IBS_PROD_CTGY t where t.layer='1' and t.status=1 ORDER BY NLSSORT(t.name,'NLS_SORT = SCHINESE_PINYIN_M')
+    </select>
+	<select id="getSecondCategoryByParam"   parameterType="java.util.Map"  resultMap="ProductCategoryResultMap">
+  		select * from IBS_PROD_CTGY t where t.layer='2' and 1=1 and t.status=1
+  		<if test="firstId!=null">
+  			and  t.first_id= #{firstId}
+  		</if>
+  		ORDER BY NLSSORT(t.name,'NLS_SORT = SCHINESE_PINYIN_M')
+	</select>
+	<select id="getThirdCategoryByParam"   parameterType="java.util.Map"  resultMap="ProductCategoryResultMap">
+  		select * from IBS_PROD_CTGY t where t.layer='3' and 1=1 and t.status=1
+  		<if test="secondId!=null">
+  			and  t.second_id= #{secondId}
+  		</if>
+  		ORDER BY NLSSORT(t.name,'NLS_SORT = SCHINESE_PINYIN_M')
+	</select>	
+	<select id="getAllThirdCategory" parameterType="PageSearch"  resultMap="ProductCategoryResultMap">
+        select * from 
+        (select distinct t.*,t1.name as NAME1,t2.name as NAME2 from IBS_PROD_CTGY t,IBS_PROD_CTGY t2,IBS_PROD_CTGY t1 where t1.layer='1' and t2.layer='2' and t.layer='3'
+        and t.first_id=t1.first_id and t.second_id=t2.second_id
+            <if test="paramMap.objectId != null">
+                and t.object_id = #{paramMap.objectId}
+            </if>
+            <if test="paramMap.firstId != null">
+                and t.first_id LIKE #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and t.second_id LIKE #{paramMap.secondId}
+            </if>
+            <if test="paramMap.thirdId != null">
+                and t.third_id LIKE #{paramMap.thirdId}
+            </if>
+            <if test="paramMap.firstName != null">
+                and t1.name LIKE #{paramMap.firstName}
+            </if>
+            <if test="paramMap.secondName != null">
+                and t2.name LIKE #{paramMap.secondName}
+            </if>
+            <if test="paramMap.thirdName != null">
+                and t.name LIKE #{paramMap.thirdName}
+            </if>
+            <if test="paramMap.status != null">
+                and t.status = #{paramMap.status}
+            </if>
+            )
+            <if test="paramMap.orderBy!=null">
+			    order by ${paramMap.orderBy}
+			</if>
+    </select>   
+    <select id="getThirdCategoryByThirdId" parameterType="String" resultMap="ProductCategoryResultMap">
+        select distinct t.*,t1.name as NAME1,t2.name as NAME2 from IBS_PROD_CTGY t,IBS_PROD_CTGY t2,IBS_PROD_CTGY t1 where t1.layer='1' and t2.layer='2' and t.layer='3'
+        and t.first_id=t1.first_id and t.second_id=t2.second_id and t.third_id = #{thirdId}
+    </select>   
+    <select id="getThirdCategoryByObjectId" parameterType="Long" resultMap="ProductCategoryResultMap">
+        select distinct t.*,t1.name as NAME1,t2.name as NAME2 from IBS_PROD_CTGY t,IBS_PROD_CTGY t2,IBS_PROD_CTGY t1 where t1.layer='1' and t2.layer='2' and t.layer='3'
+        and t.first_id=t1.first_id and t.second_id=t2.second_id and t.object_id = #{objectId}
+    </select>  
+    <select id="getProductCategoriesByMallCategoryId" parameterType="Long" resultMap="ProductCategoryResultMap">
+       select * from IBS_PROD_CTGY a,IBS_PROD_CTGY_MAP b where a.object_id = b.PRODUCT_CATEGORY_ID and b.MALL_CATEGORY_ID = #{mallCategoryId}
+    </select> 
+    
+    <update id="updateStatus" parameterType="com.handpay.ibenefit.category.entity.ProductCategory">
+        update IBS_PROD_CTGY t set status = #{status} where object_id = #{objectId} 
+    </update>
+    
+    <update id="updateSortNo" parameterType="com.handpay.ibenefit.category.entity.ProductCategory">
+        update IBS_PROD_CTGY t set SORT_NO = #{sortNo}  where object_id = #{objectId}
+    </update>
+    <select id="getThirdCategory" parameterType="Map" resultMap="ProductCategoryResultMap">
+        select (t1.NAME||'>>'||t2.NAME||'>>'||t.NAME) name,t.object_id from IBS_PROD_CTGY t,IBS_PROD_CTGY t2,IBS_PROD_CTGY t1 where t1.layer='1' and t2.layer='2' and t.layer='3'
+        and t.first_id=t1.first_id and t.second_id=t2.second_id and t.object_id in (${categoryIds})
+        ORDER BY NLSSORT(t1.name,'NLS_SORT = SCHINESE_PINYIN_M'),NLSSORT(t2.name,'NLS_SORT = SCHINESE_PINYIN_M'),NLSSORT(t.name,'NLS_SORT = SCHINESE_PINYIN_M')
+    </select>  
+</mapper>

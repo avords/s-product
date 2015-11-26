@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ProductCompanyPriceDao">
+    <resultMap id="ProductCompanyPriceResultMap" type="com.handpay.ibenefit.product.entity.ProductCompanyPrice">
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    	<result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+    	<result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+    	<result column="SKU_ID" property="skuId" jdbcType="DECIMAL" />
+    	<result column="COMPANY_PRICE" property="companyPrice" jdbcType="DOUBLE" />
+    	<result column="UPDATE_USER_ID" property="updateUserId" jdbcType="DECIMAL" />
+    	<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+	<select id="getCompanyPriceInfo" parameterType="PageSearch" resultType="java.util.Map">
+	select * from (
+			SELECT A.*,
+			       B.check_status STATUS,
+			       B.SKU_NO SKUNO,
+			       B.PRODUCT_ID PRODUCTID,
+			       B.NAME PRODUCTNAME,
+			       B.ATTRIBUTE_VALUE1 ATTRIBUTEVALUE1,
+			       B.ATTRIBUTE_VALUE2 ATTRIBUTEVALUE2,
+			       B.SELL_PRICE SELLPRICE,
+			       B.SUPPLIER_NAME SUPPLIERNAME
+			  FROM (SELECT (A.COMPANY_NAME) AS COMPANYNAME,
+			               (t.object_id) OBJECTID,
+			               (t.sku_id) SKUID,
+			               (T.COMPANY_PRICE) AS COMPANYPRICE,
+			               (C.USER_NAME) AS USERNAME,
+			               (T.UPDATE_DATE) AS UPDATEDATE
+			          FROM IBS_PROD_COMP_PRICE T
+			               LEFT JOIN IBS_COMPANY A ON T.COMPANY_ID = A.OBJECT_ID
+			               LEFT JOIN F_USER C ON T.UPDATE_USER_ID = C.OBJECT_ID) a
+			       LEFT JOIN
+			       (SELECT DISTINCT t1.*,
+			                        t2.category_id,
+			                        t6.first_id,
+			                        t6.second_id,
+			                        t3.supplier_name,
+			                        t3.supplier_no
+			          FROM IBS_PROD_SKU t1
+			               LEFT JOIN ibs_prod t2 ON (t1.product_id = t2.object_id)
+			               LEFT JOIN IBS_SUPPLIER t3 ON (t2.supplier_id = t3.object_id)
+			               LEFT JOIN IBS_PROD_CTGY t6 ON (t2.category_id = t6.object_id)
+			         WHERE t1.deleted = 0) b
+			          ON a.skuid = b.object_id
+			 WHERE 1 = 1
+            <if test="paramMap.firstId != null">
+                and b.first_id = #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and b.second_id = #{paramMap.secondId}
+            </if>
+            <if test="paramMap.categoryId != null">
+                and b.object_id = #{paramMap.categoryId}
+            </if>
+            <if test="paramMap.supplierNo != null">
+                and b.supplier_no LIKE #{paramMap.supplierNo}
+            </if>
+            <if test="paramMap.supplierName != null">
+                and b.supplier_name LIKE #{paramMap.supplierName}
+            </if>
+            <if test="paramMap.type != null">
+                and b.type = #{paramMap.type}
+            </if>
+            <if test="paramMap.name != null">
+                and b.name LIKE #{paramMap.name}
+            </if>
+            <if test="paramMap.skuNo != null">
+                and b.sku_no LIKE #{paramMap.skuNo}
+            </if>
+            <if test="paramMap.publishDate1 != null">
+                and b.created_on >= #{paramMap.publishDate1}
+            </if>
+            <if test="paramMap.publishDate2 != null">
+                and  #{paramMap.publishDate2}>=b.created_on
+            </if>
+            <if test="paramMap.companyName != null">
+                and  a.COMPANYNAME like #{paramMap.companyName}
+            </if>
+            )
+            <if test="paramMap.orderBy!=null">
+                order by ${paramMap.orderBy}
+            </if>
+	</select>
+</mapper>

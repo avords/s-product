@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ProductDao">
+    <resultMap id="product" type="com.handpay.ibenefit.product.entity.Product" >
+	    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+	    <result column="SUPPLIER_ID" property="supplierId" jdbcType="DECIMAL" />
+	    <result column="BRAND_ID" property="brandId" jdbcType="DECIMAL" />
+	    <result column="CATEGORY_ID" property="categoryId" jdbcType="DECIMAL" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="KEYWORDS" property="keywords" jdbcType="VARCHAR" />
+	    <result column="PRODUCT_NO" property="productNo" jdbcType="VARCHAR" />
+	    <result column="PRODUCT_MODEL" property="productModel" jdbcType="VARCHAR" />
+	    <result column="DISTRIBUTION_WAY" property="distributionWay" jdbcType="DECIMAL" />
+	    <result column="SUPPLY_PRICE" property="supplyPrice" jdbcType="DECIMAL" />
+	    <result column="MARKET_PRICE" property="marketPrice" jdbcType="DECIMAL" />
+	    <result column="SELL_PRICE" property="sellPrice" jdbcType="DECIMAL" />
+	    <result column="SAFETY_STOCK" property="safetyStock" jdbcType="DECIMAL" />
+	    <result column="IF_INVOICE" property="ifInvoice" jdbcType="DECIMAL" />
+	    <result column="PACKINGLIST" property="packinglist" jdbcType="VARCHAR" />
+	    <result column="WEIGHT" property="weight" jdbcType="DECIMAL" />
+	    <result column="LENGTH" property="length" jdbcType="DECIMAL" />
+	    <result column="WIDTH" property="width" jdbcType="DECIMAL" />
+	    <result column="HEIGHT" property="height" jdbcType="DECIMAL" />
+	    <result column="MAIN_PICTURE" property="mainPicture" jdbcType="VARCHAR" />
+	    <result column="IMMEDIATE_RELEASE" property="immediateRelease" jdbcType="DECIMAL" />
+	    <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+	    <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+	    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+	    <result column="APPLY_USER_ID" property="applyUserId" jdbcType="DECIMAL" />
+	    <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP" />
+	    <result column="RELEASE_TYPE" property="releaseType" jdbcType="DECIMAL" />
+	    <result column="MODIFIER_ID" property="modifierId" jdbcType="DECIMAL" />
+	    <result column="MODIFY_DATE" property="modifyDate" jdbcType="TIMESTAMP" />
+	    <result column="RETURN_GOODS" property="returnGoods" jdbcType="DECIMAL" />
+  </resultMap> 
+    <insert id="saveWelfare" parameterType="Map">
+     <choose>
+       <when test="isWelfarePlan!=null">
+          insert into IBS_PROD_WELFARE(product_id,welfare_id,status,is_welfare_plan) VALUES(#{productId},#{welfareId},#{status},#{isWelfarePlan})
+       </when>
+       <otherwise>
+          insert into IBS_PROD_WELFARE(product_id,welfare_id,status) VALUES(#{productId},#{welfareId},#{status})
+       </otherwise>
+     </choose>
+    </insert>
+    <update id="updateWelfare" parameterType="Map">
+      update IBS_PROD_WELFARE set is_welfare_plan=#{isWelfarePlan} where product_id=#{productId} and welfare_id=#{welfareId}
+    </update>
+    <delete id="deleteWelfare" parameterType="Map">
+       delete from IBS_PROD_WELFARE where 1=1
+       <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="welfareId!=null">
+        and welfare_id=#{welfareId}
+       </if>
+       <if test="status!=null">
+        and status=#{status}
+       </if>
+    </delete>
+    <select id="getWelfare" parameterType="Map" resultType="Long">
+     select welfare_id from IBS_PROD_WELFARE where 1=1
+     <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="welfareId!=null">
+        and welfare_id=#{welfareId}
+       </if>
+     <if test="status!=null">
+        and status=#{status}
+       </if>
+    </select>
+    <insert id="upWelfare" parameterType="Map">
+      insert into IBS_PROD_WELFARE(product_id,welfare_id,status) select t.product_id,t.welfare_id,1 from IBS_PROD_WELFARE t
+      where t.product_id=#{productId} and t.status=0
+    </insert>
+    
+    <insert id="saveProductType" parameterType="Map">
+      insert into IBS_PROD_TYPES(product_id,type,status) VALUES(#{productId},#{type},#{status})
+    </insert>
+    <delete id="deleteProductType" parameterType="Map">
+       delete from IBS_PROD_TYPES where 1=1
+       <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="status!=null">
+        and status=#{status}
+       </if>
+    </delete>
+    <select id="getProductType" parameterType="Map" resultType="Integer">
+     select type from IBS_PROD_TYPES where 1=1
+     <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="type!=null">
+        and type=#{type}
+       </if>
+     <if test="status!=null">
+        and status=#{status}
+       </if>
+    </select>
+    <insert id="upProductType" parameterType="Map">
+      insert into IBS_PROD_TYPES(product_id,type,status) select t.product_id,t.type,1 from IBS_PROD_TYPES t
+      where t.product_id=#{productId} and t.status=0
+    </insert>
+        
+    <insert id="saveProductPicture" parameterType="Map">
+      insert into IBS_PROD_PICTURE(product_id,url,status) VALUES(#{productId},#{url},#{status})
+    </insert>
+    
+    <delete id="deleteProductPicture" parameterType="Map">
+       delete from IBS_PROD_PICTURE where 1=1
+       <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="status!=null">
+        and status=#{status}
+       </if>
+    </delete>
+    <select id="getProductPicture" parameterType="Map" resultType="String">
+     select url from IBS_PROD_PICTURE where 1=1
+     <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="url!=null">
+        and url=#{url}
+       </if>
+     <if test="status!=null">
+        and status=#{status}
+       </if>
+    </select>
+    <insert id="upProductPicture" parameterType="Map">
+      insert into IBS_PROD_PICTURE(product_id,url,status) select t.product_id,t.url,1 from IBS_PROD_PICTURE t
+      where t.product_id=#{productId} and t.status=0
+    </insert>
+    
+    <insert id="saveProductTogetherShow" parameterType="Map">
+      insert into IBS_PROD_SHOW(product_id,attribute_id,is_together,status) VALUES(#{productId},#{attributeId},#{isTogether},#{status})
+    </insert>
+    <delete id="deleteProductTogetherShow" parameterType="Map">
+       delete from IBS_PROD_SHOW where 1=1
+       <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="status!=null">
+        and status=#{status}
+       </if>
+    </delete>
+    <select id="getProductTogetherShow" parameterType="Map" resultType="Integer">
+     select is_together from IBS_PROD_SHOW where 1=1
+     <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="attributeId!=null">
+        and attribute_id=#{attributeId}
+       </if>
+       <if test="isTogether!=null">
+        and is_together=#{isTogether}
+       </if>
+     <if test="status!=null">
+        and status=#{status}
+       </if>
+    </select>
+    <insert id="upProductTogetherShow" parameterType="Map">
+      insert into IBS_PROD_SHOW(product_id,attribute_id,is_together,status) select t.product_id,t.attribute_id,t.is_together,1 from IBS_PROD_SHOW t
+      where t.product_id=#{productId} and t.status=0
+    </insert>
+    
+    <insert id="saveSellArea" parameterType="Map">
+      insert into IBS_PROD_SELL_AREA(product_id,area_code,status) VALUES(#{productId},#{areaCode},#{status})
+    </insert>
+    <delete id="deleteSellArea" parameterType="Map">
+       delete from IBS_PROD_SELL_AREA where 1=1
+       <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="status!=null">
+        and status=#{status}
+       </if>
+    </delete>
+    <select id="getSellArea" parameterType="Map" resultType="String">
+     select area_code from IBS_PROD_SELL_AREA where 1=1
+     <if test="productId!=null">
+        and product_id=#{productId}
+       </if>
+       <if test="areaCode!=null">
+        and area_code=#{areaCode}
+       </if>
+     <if test="status!=null">
+        and status=#{status}
+       </if>
+    </select>
+    <insert id="upSellArea" parameterType="Map">
+      insert into IBS_PROD_SELL_AREA(product_id,area_code,status) select t.product_id,t.area_code,1 from IBS_PROD_SELL_AREA t
+      where t.product_id=#{productId} and t.status=0
+    </insert>
+    <select id="isSelectCountrywide" parameterType="Long" resultType="Long">
+     select count(*) from IBS_PROD_SELL_AREA where area_code='-1' 
+     and product_id=#{productId} 
+     and status=0
+    </select>
+    <select id="getProductsBySubOrderId" parameterType="Long" resultMap="product">
+    	select * from IBS_PROD where object_id in (select product_id from ibs_order_sku where sub_order_id = #{subOrderId})
+    </select>
+    
+    <select id="getProductbySubitemid" parameterType="Long" resultType="Long">
+    	select count(a.object_id) from IBS_PROD a,IBS_PROD_WELFARE b where a.object_id=b.product_id and b.welfare_id = #{objectId}
+    </select>
+        
+    <delete id="deleteProductPublish" parameterType="Map">
+       delete from IBS_PROD_PUBLISH where 1=1
+       <if test="productId!=null">
+        and object_id=#{productId}
+       </if>
+    </delete>
+    <insert id="upProductPublish" parameterType="Map">
+      insert into IBS_PROD_PUBLISH(OBJECT_ID, SUPPLIER_ID, BRAND_ID, 
+      CATEGORY_ID, NAME, KEYWORDS, 
+      PRODUCT_NO, PRODUCT_MODEL, DISTRIBUTION_WAY, 
+      SUPPLY_PRICE, MARKET_PRICE, SELL_PRICE, 
+      SAFETY_STOCK, IF_INVOICE, PACKINGLIST, 
+      WEIGHT, LENGTH, WIDTH, 
+      HEIGHT, MAIN_PICTURE, CREATED_BY, 
+      CREATED_ON, RELEASE_TYPE, UPDATED_BY, 
+      UPDATED_ON, DELETED, START_DATE, 
+      END_DATE, IMMEDIATE_RELEASE, DESCRIPTION,STAFF_GRADE_ID
+      ) select OBJECT_ID, SUPPLIER_ID, BRAND_ID, 
+      CATEGORY_ID, NAME, KEYWORDS, 
+      PRODUCT_NO, PRODUCT_MODEL, DISTRIBUTION_WAY, 
+      SUPPLY_PRICE, MARKET_PRICE, SELL_PRICE, 
+      SAFETY_STOCK, IF_INVOICE, PACKINGLIST, 
+      WEIGHT, LENGTH, WIDTH, 
+      HEIGHT, MAIN_PICTURE, CREATED_BY, 
+      CREATED_ON, RELEASE_TYPE, UPDATED_BY, 
+      sysdate, DELETED, START_DATE, 
+      END_DATE, IMMEDIATE_RELEASE, DESCRIPTION,STAFF_GRADE_ID 
+      from IBS_PROD
+      where 1=1
+      <if test="productId!=null">
+        and object_id=#{productId}
+       </if>
+    </insert>
+    
+    <select id="queryCountByParam" parameterType="Map" resultType="Long">
+	SELECT COUNT (*)
+	  FROM (SELECT DISTINCT p.object_id
+	          FROM ibs_prod_sku s
+	               INNER JOIN ibs_prod p ON (p.object_id = s.product_id)
+	         WHERE s.deleted = 0
+	         <if test="brandId!=null">
+		         and p.brand_id=#{brandId}
+		     </if>
+		     <if test="categoryId!=null">
+                 and p.category_id=#{categoryId}
+             </if>
+	         )
+	</select>
+
+     <select id="queryOnshelves" parameterType="PageSearch" resultMap="product">
+		 SELECT A.*
+		  FROM IBS_PROD A,IBS_PROD_CTGY B
+		 WHERE EXISTS (SELECT 1
+		                 FROM IBS_PROD_SKU_PUBLISH B
+		                WHERE A.OBJECT_ID = B.PRODUCT_ID
+		                AND B.CHECK_STATUS = 5)
+		                AND A.CATEGORY_ID = B.OBJECT_ID
+           <if test="paramMap.firstId != null">
+               AND B.FIRST_ID = #{paramMap.firstId}
+           </if>
+           <if test="paramMap.secondId != null">
+               AND B.SECOND_ID = #{paramMap.secondId}
+           </if>
+           <if test="paramMap.categoryId != null">
+			   AND A.CATEGORY_ID = #{paramMap.categoryId}              
+           </if>
+           <if test="paramMap.name != null">
+               AND A.NAME LIKE #{paramMap.name}
+           </if>
+           <if test="paramMap.productNo != null">
+               AND A.PRODUCT_NO LIKE #{paramMap.productNo}
+           </if>	
+           
+	 </select>
+	 
+	 <select id="queryPicsByProductIds" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	 	select  p.product_id,p.url,p.status from ibs_prod_picture p where 1=1 
+	 	<if test="skupublishIds != null and skupublishIds.size()>0">
+	 		 and  p.product_id in 
+		 	<foreach collection="skupublishIds" item="skupublishId" separator="," open="(" close=")">
+	 			${skupublishId}
+		 	</foreach>
+	 	</if>
+	 	<if test="status!=null">
+        	and status=#{status}
+       </if>
+	 </select>
+    
+    <insert id="saveSpecPic" parameterType="Map">
+      insert into ibs_prod_spec_pic(product_id,attribute_value_id,url) values(#{productId},#{attributeValueId},#{url})
+    </insert>
+    <delete id="deleteSpecPic" parameterType="Map">
+      delete from ibs_prod_spec_pic where product_id=#{productId} and attribute_value_id=#{attributeValueId}
+    </delete>
+    <select id="getSpecPic" parameterType="Map" resultType="String">
+      select t.url from ibs_prod_spec_pic t where t.product_id=#{productId} and t.attribute_value_id=#{attributeValueId}
+    </select>
+    <update id="uploadEnclosure" parameterType="Map">
+      update ibs_prod t set t.enclosure=#{enclosure},t.enclosure_name=#{enclosureName} where t.object_id=#{productId}
+    </update>
+</mapper>

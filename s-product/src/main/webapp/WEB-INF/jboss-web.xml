@@ -1,0 +1,3 @@
+<jboss-web>
+  <context-root>ibenefit-service-product</context-root>
+</jboss-web>

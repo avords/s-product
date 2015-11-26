@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.ProductCompanyExclusiveDao">
+    <resultMap id="ProductCompanyExclusiveResultMap" type="com.handpay.ibenefit.product.entity.ProductCompanyExclusive">
+    	<id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    	<result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+    	<result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+    </resultMap>
+
+	<select id="getExclusiveProductInfo" parameterType="PageSearch" resultType="java.util.Map">
+	  select * from(
+		SELECT
+		A.object_id AS OBJECT_ID,
+		(A.COMPANY_ID) AS COMPANYID,
+		(B.COMPANY_NAME) AS COMPANYNAME,
+		(A.PRODUCT_ID) AS PRODUCTID,
+		(D.PRODUCT_NO) AS PRODUCTNO,
+		(D.NAME) AS PRODUCTNAME,
+		(E2.NAME||'-'||E1.NAME||'-'||E.NAME) AS CATEGORYNAME,
+		(F.USER_NAME) AS OPERATEUSER,
+		(A.OPERATE_TIME) AS OPERATETIME
+		FROM
+		IBS_PROD_COMP_EXCL A
+		LEFT JOIN IBS_COMPANY B ON A.COMPANY_ID = B.OBJECT_ID
+		LEFT JOIN IBS_PROD D ON A.PRODUCT_ID = D.OBJECT_ID
+		<if test="paramMap.supplierNo!=null or paramMap.supplierName!=null">
+		LEFT JOIN IBS_SUPPLIER S ON D.SUPPLIER_ID = S.OBJECT_ID
+		</if>
+		LEFT JOIN IBS_PROD_CTGY E ON E.OBJECT_ID = D.CATEGORY_ID
+		LEFT JOIN IBS_PROD_CTGY E1 ON E.second_id = E1.second_id and E1.layer=2
+		LEFT JOIN IBS_PROD_CTGY E2 ON E.first_id = E2.first_id and E2.layer=1
+		LEFT JOIN F_USER F ON F.OBJECT_ID = A.OPERATE_USER
+		where 1=1
+		<if test="paramMap.categoryId!=null">
+		and D.category_id = #{paramMap.categoryId}
+		</if>
+		<if test="paramMap.supplierNo!=null">
+        and S.supplier_no like #{paramMap.supplierNo}
+        </if>
+        <if test="paramMap.supplierName!=null">
+        and S.supplier_name like #{paramMap.supplierName}
+        </if>
+        <if test="paramMap.productName!=null">
+        and D.name like #{paramMap.productName}
+        </if>
+        <if test="paramMap.productNo!=null">
+        and D.product_no like #{paramMap.productNo}
+        </if>
+        <if test="paramMap.companyName!=null">
+        and D.b.company_name like #{paramMap.companyName}
+        </if>
+        )
+        <if test="paramMap.orderBy!=null">
+                order by ${paramMap.orderBy}
+            </if>
+	</select>
+	
+	<select id="getProductIdsByCompanyId" parameterType="Long" resultType="Long">
+		SELECT DISTINCT a.product_id
+  		FROM IBS_PROD_COMP_EXCL a where company_id= #{companyId}
+	</select>
+	
+	<select id="getAllExclusiveProduct" parameterType="Long" resultType="Long">
+		SELECT DISTINCT a.product_id
+  		FROM IBS_PROD_COMP_EXCL a
+	</select>
+	
+	<select id="getExclusiveCompanyId" parameterType="Long" resultType="Long">
+		SELECT DISTINCT a.company_id
+  		FROM IBS_PROD_COMP_EXCL a where PRODUCT_ID = #{productId}
+	</select>
+	
+</mapper>

@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.handpay.ibenefit.product.dao.SkuPublishDao">
+
+<resultMap id="SkuPublishResultMap" type="com.handpay.ibenefit.product.entity.SkuPublish" >
+    <id column="OBJECT_ID" property="objectId" />
+    <result column="PRODUCT_ID" property="productId" />
+    <result column="SKU_NO" property="skuNo" />
+    <result column="NAME" property="name" />
+    <result column="PRODUCT_NO" property="productNo" />
+    <result column="PRODUCT_MODEL" property="productModel" />
+    <result column="SUPPLY_PRICE" property="supplyPrice" />
+    <result column="MARKET_PRICE" property="marketPrice" />
+    <result column="SELL_PRICE" property="sellPrice" />
+    <result column="SAFETY_STOCK" property="safetyStock" />
+    <result column="STOCK" property="stock" />
+    <result column="ATTRIBUTE_ID1" property="attributeId1" />
+    <result column="ATTRIBUTE_ID2" property="attributeId2" />
+    <result column="ATTRIBUTE_VALUE1" property="attributeValue1" />
+    <result column="ATTRIBUTE_VALUE2" property="attributeValue2" />
+    <result column="IF_INVOICE" property="ifInvoice" />
+    <result column="CHECK_STATUS" property="checkStatus" />
+    <result column="TYPE" property="type" />
+    <result column="DELETED" property="deleted" />
+    <result column="CREATED_BY" property="createdBy" />
+    <result column="CREATED_ON" property="createdOn" />
+    <result column="UPDATED_BY" property="updatedBy" />
+    <result column="UPDATED_ON" property="updatedOn" />
+    <result column="RETURN_GOODS" property="returnGoods" />
+    <result column="IMMEDIATE_RELEASE" property="immediateRelease" />
+    <result column="START_DATE" property="startDate" />
+    <result column="END_DATE" property="endDate" />
+    <result column="MAIN_PICTURE" property="mainPicture" />
+    <result column="DESCRIPTION" property="productDesc" />
+    <result column="SUPPLIER_ID" property="supplierId" />
+    <result column="PACKAGE_NAME" property="packageName" />
+    <result column="FIRST_PARAMETER" property="firstParameter" />
+    <result column="SECOND_PARAMETER" property="secondParameter" />
+    <result column="STOCK_SOURCE" property="stockSource" />
+    <result column="PRODUCT_PRICE" property="productPrice" />
+    
+    
+  </resultMap>
+  
+  
+  
+
+<resultMap id="skuMap" type="com.handpay.ibenefit.product.entity.Sku" >
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    <result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+    <result column="SKU_NO" property="skuNo" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="PRODUCT_NO" property="productNo" jdbcType="VARCHAR" />
+    <result column="PRODUCT_MODEL" property="productModel" jdbcType="VARCHAR" />
+    <result column="SUPPLY_PRICE" property="supplyPrice" jdbcType="DOUBLE" />
+    <result column="MARKET_PRICE" property="marketPrice" jdbcType="DOUBLE" />
+    <result column="SELL_PRICE" property="sellPrice" jdbcType="DOUBLE" />
+    <result column="SAFETY_STOCK" property="safetyStock" jdbcType="DECIMAL" />
+    <result column="STOCK" property="stock" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_ID1" property="attributeId1" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_ID2" property="attributeId2" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_VALUE1" property="attributeValue1" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE_VALUE2" property="attributeValue2" jdbcType="VARCHAR" />
+    <result column="IF_INVOICE" property="ifInvoice" jdbcType="DECIMAL" />
+    <result column="CHECK_STATUS" property="checkStatus" jdbcType="DECIMAL" />
+    <result column="TYPE" property="type" jdbcType="DECIMAL" />
+    <result column="DELETED" property="deleted" jdbcType="DECIMAL" />
+    <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL" />
+    <result column="CREATED_ON" property="createdOn" jdbcType="TIMESTAMP" />
+    <result column="UPDATED_BY" property="updatedBy" jdbcType="DECIMAL" />
+    <result column="UPDATED_ON" property="updatedOn" jdbcType="TIMESTAMP" />
+    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="category_id" property="categoryId" jdbcType="DECIMAL" />
+    <result column="RETURN_GOODS" property="returnGoods" jdbcType="DECIMAL" />
+    <result column="IMMEDIATE_RELEASE" property="immediateRelease" jdbcType="DECIMAL" />
+    <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+    <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+    <association property="product" column="product_id" javaType="com.handpay.ibenefit.product.entity.Product">  
+        <id column="product_id" property="objectId"/>  
+        <result column="release_type" property="releaseType"/>  
+         <result column="main_Picture" property="mainPicture"/> 
+   </association>  
+  </resultMap>
+  
+  <resultMap id="skuPublishMap" type="com.handpay.ibenefit.product.entity.SkuPublish" >
+    <id column="OBJECT_ID" property="objectId" jdbcType="DECIMAL" />
+    <result column="PRODUCT_ID" property="productId" jdbcType="DECIMAL" />
+    <result column="SKU_NO" property="skuNo" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="PRODUCT_NO" property="productNo" jdbcType="VARCHAR" />
+    <result column="PRODUCT_MODEL" property="productModel" jdbcType="VARCHAR" />
+    <result column="SUPPLY_PRICE" property="supplyPrice" jdbcType="DOUBLE" />
+    <result column="MARKET_PRICE" property="marketPrice" jdbcType="DOUBLE" />
+    <result column="SELL_PRICE" property="sellPrice" jdbcType="DOUBLE" />
+    <result column="SAFETY_STOCK" property="safetyStock" jdbcType="DECIMAL" />
+    <result column="STOCK" property="stock" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_ID1" property="attributeId1" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_ID2" property="attributeId2" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_VALUE1" property="attributeValue1" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE_VALUE2" property="attributeValue2" jdbcType="VARCHAR" />
+    <result column="IF_INVOICE" property="ifInvoice" jdbcType="DECIMAL" />
+    <result column="CHECK_STATUS" property="checkStatus" jdbcType="DECIMAL" />
+    <result column="TYPE" property="type" jdbcType="DECIMAL" />
+    <result column="DELETED" property="deleted" jdbcType="DECIMAL" />
+    <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL" />
+    <result column="CREATED_ON" property="createdOn" jdbcType="TIMESTAMP" />
+    <result column="UPDATED_BY" property="updatedBy" jdbcType="DECIMAL" />
+    <result column="UPDATED_ON" property="updatedOn" jdbcType="TIMESTAMP" />
+    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="category_id" property="categoryId" jdbcType="DECIMAL" />
+    <result column="RETURN_GOODS" property="returnGoods" jdbcType="DECIMAL" />
+    <result column="IMMEDIATE_RELEASE" property="immediateRelease" jdbcType="DECIMAL" />
+    <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+    <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+    <result column="STOCK_SOURCE" property="stockSource"  jdbcType="DECIMAL"/>
+    <association property="product" column="product_id" javaType="com.handpay.ibenefit.product.entity.ProductPublish">  
+         <id column="product_id" property="objectId"/>  
+         <result column="release_type" property="releaseType"/>  
+         <result column="main_Picture" property="mainPicture"/> 
+         <result column="supplier_id" property="supplierId"/> 
+         <result column="brand_id" property="brandId"/>
+         <result column="description" property="description"/>
+   </association>  
+  </resultMap>
+  
+  <update id="modifySkuPublish" parameterType="Map">
+        update ibs_prod_sku_publish set 
+         <if test="returnGoods != null">
+           return_goods=#{returnGoods} 
+         </if>
+         <if test="addStock != null">
+           stock=stock+#{addStock} 
+         </if>
+         <if test="checkStatus != null">
+           check_status=#{checkStatus} 
+         </if>
+         <if test="stockSource != null">
+           stock=#{stock},stock_source=#{stockSource}
+         </if>
+          where 1=1
+	     <if test="productId != null">
+	     and product_id=#{productId}
+	     </if>
+	     <if test="objectId != null">
+	     and object_id=#{objectId}
+	     </if>
+  </update>
+  <delete id="deleteSkuPublish" parameterType="Map">
+    delete from ibs_prod_sku_publish where 1=1
+    <if test="productId != null">
+     and product_id=#{productId}
+     </if>
+     <if test="objectId != null">
+     and object_id=#{objectId}
+     </if>
+  </delete>
+  
+  <select id="getImmediatelyPublish" resultMap="skuMap">
+    select distinct * from ibs_prod_sku_publish s,ibs_prod p 
+    where s.product_id=p.object_id and p.IMMEDIATE_RELEASE=1
+  </select>
+  <select id="getSpecificDatePublish" resultMap="skuMap">
+    select distinct * from ibs_prod_sku_publish s,ibs_prod p 
+    where s.product_id=p.object_id and p.IMMEDIATE_RELEASE=2 and p.start_date>=sysdate and sysdate>=p.end_date
+  </select>
+  
+      <select id="findSkuDirect" parameterType="PageSearch" resultMap="skuMap">
+         select distinct t1.*,t2.category_id,t2.object_id product_id,t2.release_type,t3.supplier_name from (select distinct t1.*,t5.user_name as update_user_name
+             from IBS_PROD_SKU_PUBLISH t1
+             left join F_USER t5 on(t1.updated_by=t5.object_id)) t1
+             left join IBS_PROD_PUBLISH t2 on(t2.object_id=t1.product_id)
+             left join IBS_SUPPLIER t3 on (t2.supplier_id=t3.object_id)
+             left join IBS_PROD_CTGY t6 on (t2.category_id=t6.object_id)
+             <if test="paramMap.auditorId!=null">
+             left join IBS_PROD_CATE_PM t8 on (t2.category_id=t8.category_id)
+             </if>
+             where 1=1 and t1.deleted=0
+             <if test="paramMap.auditorId!=null">
+                and t8.auditor_id=#{paramMap.auditorId}
+             </if>
+            <if test="paramMap.firstId != null">
+                and t6.first_id = #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and t6.second_id = #{paramMap.secondId}
+            </if>
+            <if test="paramMap.categoryId != null">
+                and t6.object_id = #{paramMap.categoryId}
+            </if>
+            <if test="paramMap.supplierNo != null">
+                and t3.supplier_no LIKE #{paramMap.supplierNo}
+            </if>
+            <if test="paramMap.supplierName != null">
+                and t3.supplier_name LIKE #{paramMap.supplierName}
+            </if>
+            <if test="paramMap.type != null">
+                and t1.type = #{paramMap.type}
+            </if>
+            <if test="paramMap.releaseType != null">
+                and t2.release_type = #{paramMap.releaseType}
+            </if>
+            <if test="paramMap.name != null">
+                and t1.name LIKE #{paramMap.name}
+            </if>
+            <if test="paramMap.checkStatus != null">
+                and t1.check_status = #{paramMap.checkStatus}
+            </if>
+            <if test="paramMap.skuNo != null">
+                and t1.sku_no LIKE #{paramMap.skuNo}
+            </if>
+            <if test="paramMap.publishDate1 != null">
+                and t1.created_on >= #{paramMap.publishDate1}
+            </if>
+            <if test="paramMap.publishDate2 != null">
+                and  #{paramMap.publishDate2}>=t1.created_on
+            </if>
+            <if test="paramMap.warning != null">
+                and t1.safety_stock > t1.stock
+            </if>
+            order by t1.updated_on desc nulls last,t1.object_id desc nulls last
+    </select>
+    
+        <select id="findSkuByGroup" parameterType="PageSearch" resultMap="skuMap">
+         select distinct o.*,m.category_id,m.release_type,m.supplier_name from (select distinct t1.*,t2.category_id,t2.release_type,t3.supplier_name from (select distinct t1.*,t5.user_name as update_user_name
+             from IBS_PROD_SKU_PUBLISH t1
+             left join F_USER t5 on(t1.updated_by=t5.object_id)) t1
+             left join IBS_PROD t2 on(t2.object_id=t1.product_id)
+             left join IBS_SUPPLIER t3 on (t2.supplier_id=t3.object_id)
+             left join IBS_PROD_CTGY t6 on (t2.category_id=t6.object_id)
+             <if test="paramMap.auditorId!=null">
+             left join IBS_PROD_CATE_PM t8 on (t2.category_id=t8.category_id)
+             </if>
+             where 1=1 and t1.deleted=0
+             <if test="paramMap.auditorId!=null">
+                and t8.auditor_id=#{paramMap.auditorId}
+             </if>
+            <if test="paramMap.firstId != null">
+                and t6.first_id = #{paramMap.firstId}
+            </if>
+            <if test="paramMap.secondId != null">
+                and t6.second_id = #{paramMap.secondId}
+            </if>
+            <if test="paramMap.categoryId != null">
+                and t6.object_id = #{paramMap.categoryId}
+            </if>
+            <if test="paramMap.supplierNo != null">
+                and t3.supplier_no LIKE #{paramMap.supplierNo}
+            </if>
+            <if test="paramMap.supplierName != null">
+                and t3.supplier_name LIKE #{paramMap.supplierName}
+            </if>
+            <if test="paramMap.type != null">
+                and t1.type = #{paramMap.type}
+            </if>
+            <if test="paramMap.releaseType != null">
+                and t2.release_type = #{paramMap.releaseType}
+            </if>
+            <if test="paramMap.name != null">
+                and t1.name LIKE #{paramMap.name}
+            </if>
+            <if test="paramMap.checkStatus != null">
+                and t1.check_status = #{paramMap.checkStatus}
+            </if>
+            <if test="paramMap.skuNo != null">
+                and t1.sku_no LIKE #{paramMap.skuNo}
+            </if>
+            <if test="paramMap.publishDate1 != null">
+                and t1.created_on >= #{paramMap.publishDate1}
+            </if>
+            <if test="paramMap.publishDate2 != null">
+                and  #{paramMap.publishDate2}>=t1.created_on
+            </if>
+            <if test="paramMap.warning != null">
+                and t1.safety_stock > t1.stock
+            </if>
+            ) m left join IBS_PROD n on(m.product_id=n.object_id) left join IBS_PROD_SKU_PUBLISH o on(m.product_id=o.product_id)
+            order by o.updated_on desc nulls last,o.object_id desc nulls last
+    </select>
+    
+    <select id="getStock" parameterType="Map" resultType="Long">
+	    select nvl(sum(t.stock),0) from ibs_prod_sku_publish t where 1=1
+	     and t.check_status=5
+	    <if test="productId != null">
+	       and  t.product_id=#{productId}
+	    </if>
+	    <if test="attributeId1 != null">
+           and  t.attribute_id1=#{attributeId1}
+        </if>
+        <if test="attributeId2 != null">
+           and  t.attribute_id2=#{attributeId2}
+        </if>
+  </select>
+  
+   
+  
+  <select id="findWelfarePackageSku" parameterType="PageSearch" resultMap="skuMap">
+  	 	   SELECT 
+		         T1.*
+		    FROM   
+		         IBS_PROD_SKU_PUBLISH T1,
+		         IBS_PROD T2 ,
+		         IBS_SUPPLIER T3 
+		     WHERE 
+		          T1.PRODUCT_ID =  T2.OBJECT_ID
+		          AND T2.SUPPLIER_ID = T3.OBJECT_ID     
+		          AND T1.CHECK_STATUS = 5
+		          AND T3.IS_IN_SELLING = 0   
+			     <if test="paramMap.skuNo != null">
+		       		AND T1.sku_no LIKE #{paramMap.skuNo}
+			    </if>
+			     <if test="paramMap.name != null">
+			       AND T1.name LIKE #{paramMap.name}
+			    </if>   
+  </select>
+  
+  
+  <!-- 根据套餐ID 查询 对应的商品  -->
+  <select id="findWelfarePackageSkuForPackageId" parameterType="Map" resultMap="SkuPublishResultMap">
+	SELECT 
+		SKUPUB.*,
+		PRO.MAIN_PICTURE,PRO.description
+		FROM IBS_PROD_SKU_PUBLISH SKUPUB
+	LEFT JOIN IBS_WP_RELATION REL
+		ON SKUPUB.OBJECT_ID = REL.PRODUCT_ID
+	LEFT JOIN IBS_PROD_PUBLISH PRO
+       ON PRO.OBJECT_ID = SKUPUB.PRODUCT_ID
+	<where>	
+		<if test="deleted !=null">
+			SKUPUB.DELETED = ${deleted}
+		</if>
+		<if test="stock !=null">
+			AND SKUPUB.STOCK>${stock}
+		</if>
+		<if test="packageId !=null">
+			AND REL.PACKAGE_ID = #{packageId}
+		</if>
+		<if test="productType !=null">
+			AND REL.PRODUCT_TYPE = #{productType}
+		</if>
+		<if test="proSkuIds !=null and proSkuIds !=''">
+       		AND SKUPUB.OBJECT_ID IN (${proSkuIds})
+       	</if>
+       	<if test="productStatus !=null and productStatus !=''">
+       		AND SKUPUB.CHECK_STATUS = #{productStatus}
+       	</if>
+	</where>	
+	ORDER BY REL.PRIORITY ASC
+  </select>
+  
+  <!-- 根据套餐ID 查询 对应的商品  -->
+  <select id="findWelfarePackageSkuForProdIds" parameterType="Map" resultMap="SkuPublishResultMap">
+	SELECT 
+		SKUPUB.*,
+		PRO.MAIN_PICTURE,
+		PRO.SUPPLIER_ID
+	FROM IBS_PROD_SKU_PUBLISH SKUPUB
+    LEFT JOIN IBS_PROD_PUBLISH PRO
+		ON SKUPUB.PRODUCT_ID = PRO.OBJECT_ID
+	WHERE
+		SKUPUB.DELETED = 0
+		<if test="skuType !=null and skuType !=''">
+       		AND SKUPUB.TYPE = #{skuType}
+       	</if>
+		<if test="proSkuIds !=null and proSkuIds !=''">
+       		AND SKUPUB.OBJECT_ID IN (${proSkuIds})
+       	</if>
+       	
+  </select>
+  
+  <!-- 根据套餐ID 查询 对应的商品  -->
+  <select id="findSupplierProdIds" parameterType="Map" resultType="Map">
+	SELECT 
+		DISTINCT(PRO.SUPPLIER_ID)
+	FROM IBS_PROD_SKU_PUBLISH SKUPUB
+    LEFT JOIN IBS_PROD_PUBLISH PRO
+		ON SKUPUB.PRODUCT_ID = PRO.OBJECT_ID
+	WHERE
+		SKUPUB.DELETED = 0
+		<if test="proSkuIds !=null and proSkuIds !=''">
+       		AND SKUPUB.OBJECT_ID IN (${proSkuIds})
+       	</if>
+       	<if test="skuType !=null and skuType !=''">
+       		AND SKUPUB.TYPE = #{skuType}
+       	</if>
+  </select>
+  
+  <select id="selectSkuPublishForSubOrderNo" parameterType="Map" resultMap="SkuPublishResultMap">
+		SELECT 
+            SKUP.* ,
+            PROD.MAIN_PICTURE,
+            PACK.PACKAGE_NAME,
+            CAT.FIRST_PARAMETER,
+            CAT.SECOND_PARAMETER,
+            ORDSKU.PRODUCT_PRICE AS PRODUCT_PRICE
+            
+            FROM IBS_SUB_ORDER SUBORD
+            LEFT JOIN IBS_ORDER_SKU ORDSKU
+                ON SUBORD.OBJECT_ID = ORDSKU.SUB_ORDER_ID
+            LEFT JOIN IBS_PROD_SKU_PUBLISH SKUP
+                 ON SKUP.OBJECT_ID = ORDSKU.PRODUCT_ID
+            LEFT JOIN IBS_PROD_PUBLISH PROD
+                 ON PROD.OBJECT_ID = SKUP.PRODUCT_ID
+            LEFT JOIN IBS_WELFARE_PACKAGE PACK
+                 ON PACK.OBJECT_ID = ORDSKU.WELFARE_PACKAGE_ID
+            LEFT JOIN IBS_WP_CATEGORY CAT
+                 ON CAT.OBJECT_ID = PACK.WP_CATEGORY_ID
+        <where>
+        	1=1
+        	<if test="subOrderNo != null">
+        		AND SUBORD.SUB_ORDER_NO = #{subOrderNo}
+        	</if>
+        	<if test="subOrderNo == null or subOrderNo ==''">
+        		AND 1=2
+        	</if>
+        </where>
+	</select>
+  
+    <select id="getPublishProductSkuByParam" resultType="com.handpay.ibenefit.product.entity.SkuHomeView"
+        parameterType="PageSearch">
+/* Formatted on 2015/6/10 16:57:38 (QP5 v5.252.13127.32847) */
+SELECT t.product_id productid,
+       t.type type,
+       t.check_status checkStatus,
+       t.NAME AS NAME,
+       t.sku_no AS skuno,
+       T.OBJECT_ID AS skuId,
+       t.sell_price AS sellprice,
+       t.MARKET_PRICE AS marketPrice,
+       (SELECT main_picture
+          FROM ibs_prod_publish
+         WHERE object_id = t.product_id)
+          AS mainpicture,
+       P.STAFF_GRADE_ID staffGradeId
+  FROM (
+        SELECT distinct t02.product_id product_id,
+               t02.type,
+               t02.check_status,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               ts.price sell_price,
+               t02.MARKET_PRICE,
+               t02.start_date
+          FROM  ibs_company_goods ts
+               inner join ibs_prod_sku_publish t02
+                  ON ts.goods_id = t02.object_id
+                  <if test="paramMap.companyId!=null">
+                   and ts.company_id=#{paramMap.companyId}
+                  </if>
+                  <if test="paramMap.type!=null">
+                    and t02.type=#{paramMap.type}
+                  </if>
+                  where ts.type=3 and t02.deleted=0
+          ) t left join ibs_prod_publish p
+          on(t.product_id=p.object_id)
+    WHERE 1 = 1
+        <if test="paramMap.count!=null">
+        and rownum &lt;= #{paramMap.count}
+        </if>
+        <if test="paramMap.priceZoneAfter!=null">
+            AND t.sell_price &gt;= #{paramMap.priceZoneAfter}
+        </if>
+        <if test="paramMap.priceZoneBefore!=null">
+            AND t.sell_price &lt;= #{paramMap.priceZoneBefore}
+        </if>
+        <if test="paramMap.areaId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_sell_area
+                         WHERE (area_code = #{paramMap.areaId} or area_code='-1') and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.brandId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_publish
+                         WHERE brand_id = #{paramMap.brandId} and object_id=t.product_id)
+        </if>
+        <if test="paramMap.welfareItemId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_welfare
+                         WHERE welfare_id = #{paramMap.welfareItemId} and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.welfareItemBigId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_welfare w
+                         WHERE status=1 and product_id=t.product_id and exists (select 1 from ibs_welfare_item i 
+                         where i.parent_item_id=#{paramMap.welfareItemBigId} 
+                         and i.status=1
+                         and i.item_grade=2
+                         and i.object_id=w.welfare_id
+                         ))
+        </if>
+        <if test="paramMap.categoryId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.object_id=#{paramMap.categoryId})
+        </if>
+        <if test="paramMap.firstId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.first_id=#{paramMap.firstId})
+        </if>
+        <if test="paramMap.secondId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.second_id=#{paramMap.secondId})
+        </if>
+        <if test="paramMap.searchProductIds!=null">
+            AND t.object_id IN (${paramMap.searchProductIds})
+        </if>
+        <if test="paramMap.staffGrade!=null">
+            <if test="paramMap.staffGrade=='all'">
+            AND P.STAFF_GRADE_ID is not null
+             </if>
+             <if test="paramMap.staffGrade!='all'">
+            AND P.STAFF_GRADE_ID =#{paramMap.staffGrade}
+             </if>
+        </if>
+        <if test="paramMap.leStaffGrade!=null">
+            AND P.STAFF_GRADE_ID &lt;=#{paramMap.leStaffGrade}
+        </if>
+        <if test="paramMap.isInsure==1">
+            AND (t.type=4 or t.type=5)
+        </if>
+        order by t.start_date desc
+    </select>
+    
+    <select id="getRecommendProductSkuByParam" resultType="com.handpay.ibenefit.product.entity.SkuHomeView"
+        parameterType="PageSearch">
+/* Formatted on 2015/6/10 16:57:38 (QP5 v5.252.13127.32847) */
+SELECT t.product_id productid,
+       t.type type,
+       t.check_status checkStatus,
+       t.sort_no AS sortno,
+       t.NAME AS NAME,
+       t.sku_no AS skuno,
+       T.OBJECT_ID AS skuId,
+       t.sell_price AS sellprice,
+       t.MARKET_PRICE AS marketPrice,
+       (SELECT main_picture
+          FROM ibs_prod_publish
+         WHERE object_id = t.product_id)
+          AS mainpicture
+  FROM (
+        SELECT distinct t01.product_id,
+               t02.type,
+               t02.check_status,
+               t01.LOCATION,
+               t01.sort_no,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               ts.price sell_price,
+               t02.MARKET_PRICE
+          FROM ibs_prod_recommend t01
+          inner join ibs_prod_sku_publish t02
+                  ON t01.product_id = t02.product_id
+               INNER JOIN ibs_company_goods ts
+               on t02.object_id=ts.goods_id 
+               <if test="paramMap.companyId!=null">
+                   and ts.company_id=#{paramMap.companyId}
+               </if>
+                  where t01.type=3 and ts.type=3 
+               AND T01.deleted=0 and t02.deleted=0
+        ) t
+ WHERE 1 = 1
+        <if test="paramMap.count!=null">
+        and rownum &lt;= #{paramMap.count}
+        </if>
+        <if test="paramMap.priceZoneAfter!=null">
+            AND t.sell_price &gt;= #{paramMap.priceZoneAfter}
+        </if>
+        <if test="paramMap.priceZoneBefore!=null">
+            AND t.sell_price &lt;= #{paramMap.priceZoneBefore}
+        </if>
+        <if test="paramMap.areaId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_sell_area
+                         WHERE (area_code = #{paramMap.areaId} or area_code='-1') and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.brandId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_publish
+                         WHERE brand_id = #{paramMap.brandId} and object_id=t.product_id)
+        </if>
+        <if test="paramMap.welfareItemId!=null">
+            AND exists (SELECT 1
+                          FROM ibs_prod_welfare
+                         WHERE welfare_id = #{paramMap.welfareItemId} and status=1 and product_id=t.product_id)
+        </if>
+        <if test="paramMap.positionCode!=null">
+           and t.location = #{paramMap.positionCode}
+        </if>
+        order by t.sort_no
+    </select>
+    
+    <select id="getByParam" parameterType="Map" resultMap="skuPublishMap">
+      SELECT t.*,p.release_type,p.main_picture,p.supplier_id,p.brand_id,P.DESCRIPTION
+	  FROM ibs_prod_sku_publish t
+	       LEFT JOIN ibs_prod_publish p ON (t.product_id = p.object_id)
+	  WHERE 1 = 1 
+	  <if test="objectId!=null">
+	  and t.object_id=#{objectId}
+	  </if>
+    </select>
+    
+    <select id="getPublishProductSkuByParamWeixin" resultType="com.handpay.ibenefit.product.entity.SkuHomeView"
+        parameterType="PageSearch">
+/* Formatted on 2015/6/10 16:57:38 (QP5 v5.252.13127.32847) */
+SELECT t.product_id productid,
+       t.type type,
+       t.check_status checkStatus,
+       t.NAME AS NAME,
+       t.sku_no AS skuno,
+       T.OBJECT_ID AS skuId,
+       t.sell_price AS sellprice,
+       t.MARKET_PRICE AS marketPrice,
+       (SELECT main_picture
+          FROM ibs_prod_publish
+         WHERE object_id = t.product_id)
+          AS mainpicture,
+       P.STAFF_GRADE_ID staffGradeId
+  FROM (
+        SELECT distinct t02.product_id product_id,
+               t02.type,
+               t02.check_status,
+               t02.NAME,
+               t02.sku_no,
+               T02.OBJECT_ID,
+               ts.price sell_price,
+               t02.MARKET_PRICE,
+               t02.start_date
+          FROM  ibs_company_goods ts
+               inner join ibs_prod_sku_publish t02
+                  ON ts.goods_id = t02.object_id
+                  <if test="paramMap.companyId!=null">
+                   and ts.company_id=#{paramMap.companyId}
+                  </if>
+                  <if test="paramMap.type!=null">
+                    and t02.type=#{paramMap.type}
+                  </if>
+                  where ts.type=3 and t02.deleted=0
+          ) t left join ibs_prod_publish p
+          on(t.product_id=p.object_id)
+    WHERE 1 = 1
+        <if test="paramMap.categoryId!=null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.object_id=#{paramMap.categoryId})
+        </if>
+        <if test="paramMap.categoryId==null">
+            AND exists (select 1 from ibs_prod_mall_ctgy t01 
+            inner join ibs_prod_ctgy_map t02 on t01.object_id=t02.mall_category_id
+            inner join ibs_prod_ctgy t03 on t02.product_category_id=t03.object_id 
+                where t01.layer=3 
+                    and t03.layer=3 
+                    and p.category_id=t03.object_id
+                    and t01.object_id in (select t.object_id
+          from (select t.*, t1.name name1, t2.name name2, rownum ro
+                  from IBS_PROD_MALL_CTGY t
+                  join IBS_PROD_MALL_CTGY t1
+                    on (t.first_id = t1.first_id)
+                  join IBS_PROD_MALL_CTGY t2
+                    on (t.second_id = t2.second_id)
+                 where t.layer = '3'
+                   and t.status = 1
+                   and t1.layer = '1'
+                   and t2.layer = '2'
+                   and t.second_id in (select t.second_id
+                                         from IBS_PROD_MALL_CTGY t
+                                        where t.layer = '2'
+                                          and t.status = 1
+                                          and t.first_id = #{paramMap.firstId}
+                                          and t.platform =#{paramMap.platform})) t))
+        </if>
+        order by t.start_date desc
+    </select>
+    
+    <select id="getSkuPublishPrice" parameterType="Map" resultMap="skuPublishMap">
+SELECT t.OBJECT_ID,
+       t.PRODUCT_ID,
+       t.SKU_NO,
+       t.NAME,
+       t.PRODUCT_NO,
+       t.PRODUCT_MODEL,
+       t.SUPPLY_PRICE,
+       t.MARKET_PRICE,
+       t.SAFETY_STOCK,
+       t.STOCK,
+       t.ATTRIBUTE_ID1,
+       t.ATTRIBUTE_ID2,
+       t.ATTRIBUTE_VALUE1,
+       t.ATTRIBUTE_VALUE2,
+       t.IF_INVOICE,
+       t.CHECK_STATUS,
+       t.TYPE,
+       t.DELETED,
+       t.CREATED_BY,
+       t.CREATED_ON,
+       t.UPDATED_BY,
+       t.UPDATED_ON,
+       t.RETURN_GOODS,
+       t.IMMEDIATE_RELEASE,
+       t.START_DATE,
+       t.END_DATE,
+       p.release_type,
+       p.main_picture,
+       p.supplier_id,
+       p.brand_id,
+       P.DESCRIPTION,
+       NVL (i.company_price, t.sell_price) sell_price
+  FROM ibs_prod_sku_publish t
+       LEFT JOIN ibs_prod_publish p ON (t.product_id = p.object_id)
+       LEFT JOIN
+       (SELECT distinct a.company_id, a.sku_id, A.COMPANY_PRICE
+          FROM IBS_PROD_COMP_PRICE a,
+               (  SELECT company_id, sku_id, MAX (update_date) update_date
+                    FROM IBS_PROD_COMP_PRICE b
+                   WHERE COMPANY_PRICE IS NOT NULL
+                GROUP BY company_id, sku_id) b
+         WHERE     A.update_date = b.update_date
+               AND a.COMPANY_PRICE IS NOT NULL
+               AND a.sku_id = b.sku_id) i
+          ON (i.sku_id = t.object_id AND i.company_id = #{companyId})
+      WHERE 1 = 1 and t.deleted=0
+      <if test="skuId!=null">
+      and t.object_id=#{skuId}
+      </if>
+    </select>
+    
+    <select id="findSkuInner" parameterType="Map" resultMap="SkuPublishResultMap">
+         select distinct t1.*,t2.main_picture main_picture
+			from IBS_PROD_SKU_PUBLISH t1  
+			left join IBS_PROD_PUBLISH t2 on (t2.object_id=t1.product_id) 
+			inner join ibs_company_goods ts on (t1.object_id=ts.goods_id)
+			<if test="companyId!=null">
+                   and ts.company_id=#{companyId}
+             </if>
+			where t1.deleted=0 and t1.check_status=5 and ts.type=3
+            <if test="supplierId != null">
+                and t2.supplier_id = #{supplierId}
+            </if>
+            order by t1.updated_on desc nulls last,t1.object_id desc nulls last
+    </select>
+    <select id="isHavePermission" parameterType="Map" resultType="Long">
+		SELECT COUNT (*)
+		  FROM ibs_prod_sku_publish t1
+		       JOIN
+		       (SELECT DISTINCT p.*
+		          FROM ibs_company_goods g
+		               JOIN ibs_prod_sku_publish p ON (g.goods_id = p.object_id)
+		         WHERE g.TYPE = 3 AND g.company_id = #{companyId}) t2
+		          ON (t1.product_id = t2.product_id)
+		 WHERE T1.OBJECT_ID = #{skuId}
+    </select>
+</mapper>
